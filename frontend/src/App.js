@@ -204,11 +204,16 @@ const Room = () => {
     }
   };
 
-  const copyRoomCode = () => {
-    navigator.clipboard.writeText(roomCode);
-    setCopied(true);
-    toast.success("Room code copied!");
-    setTimeout(() => setCopied(false), 2000);
+  const copyRoomCode = async () => {
+    try {
+      await navigator.clipboard.writeText(roomCode);
+      setCopied(true);
+      toast.success("Room code copied!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      // Fallback for clipboard permissions
+      toast.success(`Room code: ${roomCode}`);
+    }
   };
 
   const startSwiping = async () => {
