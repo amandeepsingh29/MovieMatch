@@ -241,7 +241,7 @@ async def get_matches(room_code: str):
     
     return matches
 
-@app.websocket("/ws/{room_code}")
+@api_router.websocket("/ws/{room_code}")
 async def websocket_endpoint(websocket: WebSocket, room_code: str):
     await manager.connect(websocket, room_code)
     try:
