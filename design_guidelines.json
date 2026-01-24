@@ -1,0 +1,107 @@
+{
+  "identity": {
+    "name": "E1",
+    "mission": "Create a cinematic, immersive, and frictionless movie-picking experience.",
+    "principles": [
+      "Fusion: Tinder mechanics x Cinema aesthetics",
+      "Emotion: Anticipation and Excitement",
+      "Content is King: The Movie Poster is the Hero",
+      "Dark Mode Only: It's a movie app, turn the lights off."
+    ]
+  },
+  "typography": {
+    "primary_font": "Manrope, sans-serif",
+    "secondary_font": "Anton, sans-serif",
+    "font_urls": [
+      "https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@300;400;600;800&display=swap"
+    ],
+    "usage": {
+      "headings": "font-secondary tracking-wide uppercase",
+      "body": "font-primary tracking-normal",
+      "ui_labels": "font-primary font-bold tracking-wider uppercase text-xs"
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": "#050505",
+      "surface": "#121212",
+      "surface_highlight": "#1E1E1E",
+      "primary": "#E50914",
+      "primary_foreground": "#FFFFFF",
+      "secondary": "#F5C518",
+      "secondary_foreground": "#000000",
+      "text_main": "#EDEDED",
+      "text_muted": "#A1A1AA",
+      "success": "#22C55E",
+      "destructive": "#EF4444"
+    },
+    "tailwind_config": {
+      "colors": {
+        "cinema-black": "#050505",
+        "cinema-red": "#E50914",
+        "cinema-gold": "#F5C518",
+        "cinema-gray": "#121212"
+      }
+    }
+  },
+  "visual_enhancers": {
+    "textures": "Subtle film grain overlay (opacity 0.03) on the background.",
+    "shadows": "Glow effects instead of standard drop shadows. box-shadow: 0 0 20px rgba(229, 9, 20, 0.3)",
+    "borders": "1px solid rgba(255,255,255,0.1)",
+    "glassmorphism": "backdrop-blur-xl bg-black/60 border-white/10"
+  },
+  "layout": {
+    "grid_system": "Mobile-first. Single column for swipe view. Bento grid for 'Room Dashboard'.",
+    "spacing": "Generous padding (p-6, p-8). Content should breathe.",
+    "container": "max-w-md mx-auto h-screen overflow-hidden relative"
+  },
+  "components": {
+    "MovieCard": {
+      "description": "The hero element. 2:3 aspect ratio. Rounded corners (rounded-xl).",
+      "style": "Full cover image. Gradient overlay at bottom for text readability. 'Projector Glow' behind the active card.",
+      "interaction": "Swipe gestures (Framer Motion). Rotation and scale on drag."
+    },
+    "Buttons": {
+      "primary": "bg-cinema-red text-white rounded-full font-bold uppercase tracking-widest hover:bg-red-700 transition-colors shadow-[0_0_15px_rgba(229,9,20,0.5)]",
+      "secondary": "bg-transparent border border-white/20 text-white rounded-full hover:bg-white/10"
+    },
+    "Inputs": {
+      "style": "bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-lg focus:ring-2 focus:ring-cinema-red focus:border-transparent h-12"
+    }
+  },
+  "motion": {
+    "library": "framer-motion",
+    "animations": {
+      "swipe_right": {
+        "x": 500,
+        "opacity": 0,
+        "rotate": 20
+      },
+      "swipe_left": {
+        "x": -500,
+        "opacity": 0,
+        "rotate": -20
+      },
+      "match_popup": {
+        "initial": { "scale": 0.5, "opacity": 0 },
+        "animate": { "scale": 1, "opacity": 1 },
+        "transition": { "type": "spring", "bounce": 0.5 }
+      }
+    }
+  },
+  "images": {
+    "background_texture": "https://images.unsplash.com/photo-1762541693135-fb989de961e1?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "social_proof": "https://images.unsplash.com/photo-1758525862263-af89b090fb56?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "waiting_room_hero": "https://images.unsplash.com/photo-1766267190781-73203979c4ac?crop=entropy&cs=srgb&fm=jpg&q=85"
+  },
+  "universal_guidelines": [
+    "DO NOT use gradients for the main background. Use solid #050505 with grain.",
+    "DO NOT use 'Inter' for headings. Use 'Anton'.",
+    "Ensure all interactive elements have data-testid.",
+    "Use 'sonner' for toasts.",
+    "Use 'lucide-react' for icons.",
+    "Mobile-first approach is mandatory.",
+    "Dark mode is the ONLY mode."
+  ],
+  "instructions_to_main_agent": "You are building a 'MovieMatch' app. Focus on the 'Swipe' interaction feeling physical and fun. The 'Match' screen should feel like a celebration. Use the provided image URLs for backgrounds and placeholders. Implement the 'Anton' font for all major headings to give it that movie poster feel."
+}
