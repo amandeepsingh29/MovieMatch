@@ -346,11 +346,20 @@ const Swipe = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showMatch, setShowMatch] = useState(false);
   const [matchedMovie, setMatchedMovie] = useState(null);
-  const userId = localStorage.getItem('user_id');
+  const [userId, setUserId] = useState(localStorage.getItem('user_id'));
 
   useEffect(() => {
-    if (!userId) {
-      navigate('/');
+    // Give a moment for localStorage to be available
+    const storedUserId = localStorage.getItem('user_id');
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      // If still no userId after checking, redirect
+      setTimeout(() => {
+        if (!localStorage.getItem('user_id')) {
+          navigate('/');
+        }
+      }, 500);
       return;
     }
 
