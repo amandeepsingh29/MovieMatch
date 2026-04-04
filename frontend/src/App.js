@@ -24,7 +24,10 @@ const Landing = () => {
     }
 
     try {
-      const response = await axios.post(`${API}/rooms/create`, { username });
+      const response = await axios.post(`${API}/rooms/create`, { 
+        username,
+        include_adult: includeAdult
+      });
       const { room_code, user_id } = response.data;
       localStorage.setItem('user_id', user_id);
       localStorage.setItem('username', username);
@@ -469,6 +472,7 @@ const Swipe = () => {
   const { roomCode } = useParams();
   const navigate = useNavigate();
   const [movies, setMovies] = useState([]);
+  const [page, setPage] = useState(1);
   const [availableGenres, setAvailableGenres] = useState([]);
   const [availableLanguages, setAvailableLanguages] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
@@ -503,9 +507,11 @@ const Swipe = () => {
     }
   }, []);
 
-  const loadRoomMovies = useCallback(async () => {
+  const loadRoomMovies = useCallback(async (pageNum = 1) => {
     try {
-      const response = await axios.get(`${API}/rooms/${roomCode}/movies`);
+      const response = await axios.get(`${API}/rooms/${roomCode}/movies`, {
+        params: { page: pageNum }
+      });
       const {
         movies: roomMovies,
         waiting_for,
@@ -518,14 +524,26 @@ const Swipe = () => {
       setWaitingForMembers(waiting_for > 0);
 
       if (waiting_for > 0) {
-        setMovies([]);
+        if (pageNum === 1) setMovies([]);
         return false;
       }
 
-      setMovies(roomMovies);
+      if (pageNum === 1) {
+        setMovies(roomMovies);
+      } else {
+        setMovies(prev => {
+          const newMovies = roomMovies.filter(
+            newMovie => !prev.some(existingMovie => existingMovie.id === newMovie.id)
+          );
+          return [...prev, ...newMovies];
+        });
+      }
 
-      if (roomMovies.length === 0) {
+      if (roomMovies.length === 0 && pageNum === 1) {
         toast.error("No movies found for the merged categories");
+        return false;
+      } else if (roomMovies.length === 0 && pageNum > 1) {
+        toast.info("You've seen all movies available for these specific filters!");
         return false;
       }
 
@@ -580,8 +598,9 @@ const Swipe = () => {
     setSelectionSubmitted(true);
     setShowGenrePicker(false);
 
-    const loaded = await loadRoomMovies();
+    const loaded = await loadRoomMovies(1);
     if (loaded) {
+      setPage(1);
       setCurrentIndex(0);
     }
   };
@@ -619,7 +638,9 @@ const Swipe = () => {
           setMatchedMovie(data.movie);
           setShowMatch(true);
         } else if (data.type === 'preferences_updated' && selectionSubmitted) {
-          loadRoomMovies();
+          loadRoomMovies(1);
+          setPage(1);
+          setCurrentIndex(0);
         }
       };
 
@@ -655,8 +676,8 @@ const Swipe = () => {
     connectWebSocket();
 
     const handleVisibilityOrFocus = () => {
-      if (document.visibilityState === 'visible' && selectionSubmitted) {
-        loadRoomMovies();
+      if (document.visibilityState === 'visible' && selectionSubmitted && waitingForMembers) {
+        loadRoomMovies(1);
       }
     };
 
@@ -672,7 +693,7 @@ const Swipe = () => {
       window.removeEventListener('focus', handleVisibilityOrFocus);
       wsRef.current?.close();
     };
-  }, [loadGenres, loadRoomMovies, navigate, roomCode, selectionSubmitted]);
+  }, [loadGenres, loadRoomMovies, navigate, roomCode, selectionSubmitted, waitingForMembers]);
 
   useEffect(() => {
     if (!selectionSubmitted || !waitingForMembers) {
@@ -680,7 +701,7 @@ const Swipe = () => {
     }
 
     const timer = setInterval(() => {
-      loadRoomMovies();
+      loadRoomMovies(1);
     }, 2000);
 
     return () => clearInterval(timer);
@@ -701,10 +722,22 @@ const Swipe = () => {
         direction
       });
       
-      if (currentIndex < movies.length - 1) {
-        setCurrentIndex(currentIndex + 1);
+      const nextIndex = currentIndex + 1;
+      
+      if (nextIndex < movies.length) {
+        setCurrentIndex(nextIndex);
+        // Pre-fetch next page when 3 movies away from the end
+        if (nextIndex === movies.length - 3) {
+          const nextPage = page + 1;
+          setPage(nextPage);
+          loadRoomMovies(nextPage);
+        }
       } else {
-        toast.success("No more movies! Check your matches.");
+        // End of list reached exactly, fetch next batch and show loader
+        const nextPage = page + 1;
+        setPage(nextPage);
+        setCurrentIndex(nextIndex);
+        loadRoomMovies(nextPage);
       }
     } catch (error) {
       toast.error("Failed to record swipe");
@@ -799,14 +832,28 @@ const Swipe = () => {
   if (currentIndex >= movies.length) {
     return (
       <div className="min-h-screen bg-cinema-black film-grain flex items-center justify-center p-4">
-        <div className="text-center space-y-4">
-          <h2 className="font-secondary text-4xl text-white tracking-wide uppercase">No More Movies!</h2>
-          <button
-            onClick={() => navigate(`/room/${roomCode}`)}
-            className="bg-cinema-red text-white rounded-full px-8 py-4 font-bold uppercase tracking-widest hover:bg-red-700 transition-colors shadow-[0_0_15px_rgba(229,9,20,0.5)]"
-          >
-            Back to Room
-          </button>
+        <div className="text-center space-y-6">
+          <h2 className="font-secondary text-4xl text-white tracking-wide uppercase" data-testid="no-movies-title">You've caught up!</h2>
+          <p className="text-white/60">Fetching more movies from TMDB under your group's categories.</p>
+          <div className="flex flex-col gap-4 justify-center items-center">
+            <button
+              onClick={() => {
+                const nextPage = page + 1;
+                setPage(nextPage);
+                loadRoomMovies(nextPage);
+              }}
+              className="bg-cinema-red text-white rounded-full px-8 py-4 font-bold uppercase tracking-widest hover:bg-red-700 transition-colors shadow-[0_0_15px_rgba(229,9,20,0.5)]"
+              data-testid="fetch-more-btn"
+            >
+              Fetch More Movies
+            </button>
+            <button
+              onClick={() => navigate(`/room/${roomCode}`)}
+              className="text-white/50 text-sm hover:text-white transition-colors"
+            >
+              Or go back to Room
+            </button>
+          </div>
         </div>
       </div>
     );

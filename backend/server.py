@@ -67,9 +67,11 @@ class Room(BaseModel):
     created_at: str
     members: List[Member] = []
     status: str = "waiting"
+    include_adult: bool = False
 
 class CreateRoomRequest(BaseModel):
     username: str
+    include_adult: bool = False
 
 class JoinRoomRequest(BaseModel):
     username: str
@@ -111,7 +113,7 @@ def get_tmdb_api_key():
 def build_poster_fallback(title: str) -> str:
     return f"https://placehold.co/600x900/101010/ffffff/png?text={quote_plus(title)}"
 
-async def fetch_tmdb_movies(genres: list[str], languages: list[str], page: int = 1) -> list[dict]:
+async def fetch_tmdb_movies(genres: list[str], languages: list[str], page: int = 1, include_adult: bool = False) -> list[dict]:
     api_key = get_tmdb_api_key()
     if not api_key:
         logger.error("No TMDB_API_KEY set.")
@@ -127,8 +129,7 @@ async def fetch_tmdb_movies(genres: list[str], languages: list[str], page: int =
         "api_key": api_key,
         "page": page,
         "sort_by": "popularity.desc",
-        "include_adult": "false",
-        "vote_count.gte": "100" # Only fetch movies with at least 100 votes to ensure quality
+        "include_adult": "true" if include_adult else "false"  # Explicitly filters out pornographic/adult-only content
     }
     
     if genre_ids:
@@ -238,7 +239,8 @@ async def create_room(request: CreateRoomRequest):
         code=room_code,
         created_at=datetime.now(timezone.utc).isoformat(),
         members=[member],
-        status="waiting"
+        status="waiting",
+        include_adult=request.include_adult
     )
     
     await db.rooms.insert_one(room.model_dump())
@@ -431,9 +433,10 @@ async def get_room_movies(room_code: str, page: int = Query(default=1)):
     # Defaults if none selected yet
     query_genres = merged_genres if merged_genres else list(TMDB_GENRES.keys())
     query_languages = merged_languages if merged_languages else list(TMDB_LANGUAGES.keys())
+    include_adult = room.get("include_adult", False)
 
     # Fetch dynamic batch from TMDB
-    movies = await fetch_tmdb_movies(query_genres, query_languages, page=page)
+    movies = await fetch_tmdb_movies(query_genres, query_languages, page=page, include_adult=include_adult)
 
     waiting_for = max(total_members - selected_members, 0)
     return {
