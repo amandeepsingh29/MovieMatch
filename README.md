@@ -41,6 +41,7 @@ run_app.sh
 - Node.js 18+
 - npm 9+
 - MongoDB running locally on `localhost:27017`
+- [TMDB API Key](https://www.themoviedb.org/settings/api) (Free account required for movie data)
 
 macOS (Homebrew) quick install for MongoDB:
 
@@ -58,6 +59,7 @@ Create `backend/.env`:
 MONGO_URL=mongodb://localhost:27017
 DB_NAME=moviematch
 CORS_ORIGINS=http://localhost:3000
+TMDB_API_KEY=your_tmdb_v3_api_key_here
 ```
 
 Optional frontend env in `frontend/.env`:
@@ -116,11 +118,11 @@ App URLs:
 - `GET /api/languages`
 - `GET /api/eras`
 
-## Current Data Behavior
+## Data & Movie Discovery
 
-- Catalog is expanded to a large in-memory dataset for variety.
-- Poster reliability is hardened with validated poster links and fallback handling.
-- Trailer links open from 30 seconds by default.
+* **Powered by TMDB:** The app dynamically queries [The Movie Database (TMDB)](https://www.themoviedb.org/) Discover API to provide an endless, real-time updated stream of movies based purely on room-aggregated genres and languages.
+* **Pagination:** Users can swipe through thousands of movies asynchronously without running out of options.
+* **Trailer Links:** The app automatically generates YouTube trailer search URLs for fast previewing directly within the app experience.
 
 ## Troubleshooting
 
@@ -158,19 +160,3 @@ Install WebSocket runtime deps in venv:
 pip install websockets wsproto
 ```
 
-## GitHub Push Checklist
-
-- Configure identity:
-
-```bash
-git config user.name "Your Name"
-git config user.email "you@example.com"
-```
-
-- Commit and push:
-
-```bash
-git add -A
-git commit -m "Update MovieMatch"
-git push -u origin main
-```
