@@ -92,347 +92,115 @@ class GenrePreferencesRequest(BaseModel):
     languages: List[str] = []
     eras: List[str] = []
 
-# Mock movie data
-MOVIES = [
-    {"id": "1", "title": "The Shawshank Redemption", "year": 1994, "poster": "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg", "trailer": "6hB3S9bIaco", "genre": "Drama", "language": "English"},
-    {"id": "2", "title": "The Godfather", "year": 1972, "poster": "https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg", "trailer": "sY1S34973zA", "genre": "Crime", "language": "English"},
-    {"id": "3", "title": "The Dark Knight", "year": 2008, "poster": "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg", "trailer": "EXeTwQWrcwY", "genre": "Action", "language": "English"},
-    {"id": "4", "title": "Pulp Fiction", "year": 1994, "poster": "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg", "trailer": "s7EdQ4FqbhY", "genre": "Crime", "language": "English"},
-    {"id": "5", "title": "Forrest Gump", "year": 1994, "poster": "https://image.tmdb.org/t/p/w500/saHP97rTPS5eLmrLQEcANmKrsFl.jpg", "trailer": "bLvqoHBptjg", "genre": "Drama", "language": "English"},
-    {"id": "6", "title": "Inception", "year": 2010, "poster": "https://image.tmdb.org/t/p/w500/ljsZTbVsrQSqZgWeep2B1QiDKuh.jpg", "trailer": "YoHD9XEInc0", "genre": "Sci-Fi", "language": "English"},
-    {"id": "7", "title": "Fight Club", "year": 1999, "poster": "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg", "trailer": "qtRKdVHc-cE", "genre": "Drama", "language": "English"},
-    {"id": "8", "title": "The Matrix", "year": 1999, "poster": "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg", "trailer": "vKQi3bBA1y8", "genre": "Sci-Fi", "language": "English"},
-    {"id": "9", "title": "Interstellar", "year": 2014, "poster": "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg", "trailer": "zSWdZVtXT7E", "genre": "Sci-Fi", "language": "English"},
-    {"id": "11", "title": "3 Idiots", "year": 2009, "poster": "https://media.themoviedb.org/t/p/w500/gmSRHU1Wtiatj8KoyVt8rT9ockx.jpg", "trailer": "K0eDlFX9GMc", "genre": "Drama", "language": "Hindi"},
-    {"id": "12", "title": "Dangal", "year": 2016, "poster": "https://media.themoviedb.org/t/p/w500/1CoKNi3XVyijPCvy0usDbSWEXAg.jpg", "trailer": "x_7YlGv9u1g", "genre": "Drama", "language": "Hindi"},
-    {"id": "13", "title": "Carry on Jatta", "year": 2012, "poster": "https://media.themoviedb.org/t/p/w500/3KJ8UiNloo0Un2osnQOuyXfqNO2.jpg", "trailer": "R8fP-C8H4vE", "genre": "Comedy", "language": "Punjabi"},
-    {"id": "14", "title": "Ardaas", "year": 2016, "poster": "https://media.themoviedb.org/t/p/w500/ch6dE7bXJELXUM5QA48aoqx2ojH.jpg", "trailer": "l5tx7A2n7kQ", "genre": "Drama", "language": "Punjabi"},
-    {"id": "15", "title": "The Lord of the Rings: The Fellowship of the Ring", "year": 2001, "poster": "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg", "trailer": "V75dMMIW2B4", "genre": "Adventure", "language": "English"},
-    {"id": "16", "title": "The Lord of the Rings: The Return of the King", "year": 2003, "poster": "https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg", "trailer": "r5X-hFf6Bwo", "genre": "Adventure", "language": "English"},
-    {"id": "17", "title": "Gladiator", "year": 2000, "poster": "https://image.tmdb.org/t/p/w500/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg", "trailer": "owK1qxDselE", "genre": "Action", "language": "English"},
-    {"id": "18", "title": "The Prestige", "year": 2006, "poster": "https://media.themoviedb.org/t/p/w500/rOa94QOq3wbqKBHjSqL0WtPPJm1.jpg", "trailer": "ijXruSzfGEc", "genre": "Thriller", "language": "English"},
-    {"id": "19", "title": "Whiplash", "year": 2014, "poster": "https://image.tmdb.org/t/p/w500/7fn624j5lj3xTme2SgiLCeuedmO.jpg", "trailer": "7d_jQycdQGo", "genre": "Drama", "language": "English"},
-    {"id": "20", "title": "Mad Max: Fury Road", "year": 2015, "poster": "https://image.tmdb.org/t/p/w500/hA2ple9q4qnwxp3hKVNhroipsir.jpg", "trailer": "hEJnMQG9ev8", "genre": "Action", "language": "English"},
-    {"id": "21", "title": "Spider-Man: Into the Spider-Verse", "year": 2018, "poster": "https://image.tmdb.org/t/p/w500/iiZZdoQBEYBv6id8su7ImL0oCbD.jpg", "trailer": "g4Hbz2jLxvQ", "genre": "Animation", "language": "English"},
-    {"id": "22", "title": "Coco", "year": 2017, "poster": "https://image.tmdb.org/t/p/w500/gGEsBPAijhVUFoiNpgZXqRVWJt2.jpg", "trailer": "Ga6RYejo6Hk", "genre": "Animation", "language": "English"},
-    {"id": "23", "title": "Arrival", "year": 2016, "poster": "https://image.tmdb.org/t/p/w500/x2FJsf1ElAgr63Y3PNPtJrcmpoe.jpg", "trailer": "tFMo3UJ4B4g", "genre": "Sci-Fi", "language": "English"},
-    {"id": "24", "title": "Blade Runner 2049", "year": 2017, "poster": "https://image.tmdb.org/t/p/w500/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg", "trailer": "gCcx85zbxz4", "genre": "Sci-Fi", "language": "English"},
-    {"id": "25", "title": "Shutter Island", "year": 2010, "poster": "https://image.tmdb.org/t/p/w500/kve20tXwUZpu4GUX8l6X7Z4jmL6.jpg", "trailer": "5iaYLCiq5RM", "genre": "Thriller", "language": "English"},
-    {"id": "26", "title": "The Social Network", "year": 2010, "poster": "https://image.tmdb.org/t/p/w500/n0ybibhJtQ5icDqTp8eRytcIHJx.jpg", "trailer": "lB95KLmpLR4", "genre": "Drama", "language": "English"},
-    {"id": "27", "title": "Zindagi Na Milegi Dobara", "year": 2011, "poster": "https://media.themoviedb.org/t/p/w500/hKO9O715wYxjkQSEv47giCYcyO8.jpg", "trailer": "FJrpcDgC3zU", "genre": "Comedy", "language": "Hindi"},
-    {"id": "28", "title": "Andhadhun", "year": 2018, "poster": "https://media.themoviedb.org/t/p/w500/dy3K6hNvwE05siGgiLJcEiwgpdO.jpg", "trailer": "2iVYI99VGaw", "genre": "Thriller", "language": "Hindi"},
-    {"id": "29", "title": "Gully Boy", "year": 2019, "poster": "https://media.themoviedb.org/t/p/w500/4RE7TD5TqEXbPKyUHcn7CSeMlrJ.jpg", "trailer": "JfbxcD6biOk", "genre": "Drama", "language": "Hindi"},
-    {"id": "30", "title": "Bajrangi Bhaijaan", "year": 2015, "poster": "https://media.themoviedb.org/t/p/w500/ks1xKebubTgHgfzGDw77SAOiUJ8.jpg", "trailer": "4nwAra0mz_Q", "genre": "Drama", "language": "Hindi"},
-    {"id": "31", "title": "Punjab 1984", "year": 2014, "poster": "https://media.themoviedb.org/t/p/w500/yJcg6qaDFok73SC353u4oEYpkvF.jpg", "trailer": "_Fu4ax6N45Y", "genre": "Drama", "language": "Punjabi"},
-    {"id": "32", "title": "Jatt & Juliet", "year": 2012, "poster": "https://media.themoviedb.org/t/p/w500/sWheGtsztva6pVksRorg0mWC1M6.jpg", "trailer": "9mG0f9w9mYI", "genre": "Comedy", "language": "Punjabi", "imdb_url": "https://www.imdb.com/title/tt2196254/", "imdb_poster_url": "https://www.imdb.com/title/tt2196254/mediaviewer/rm4046382080/?ref_=tt_ov_i"},
-    {"id": "33", "title": "Sufna", "year": 2020, "poster": "https://media.themoviedb.org/t/p/w500/ozso0mV2H6Yke5L6mgZnripGwez.jpg", "trailer": "W6S0h5f6g5M", "genre": "Romance", "language": "Punjabi"},
-]
+# TMDB Configuration
+import asyncio
 
+TMDB_GENRES = {
+    "Action": "28", "Adventure": "12", "Animation": "16", "Comedy": "35",
+    "Crime": "80", "Drama": "18", "Fantasy": "14", "Romance": "10749",
+    "Sci-Fi": "878", "Thriller": "53"
+}
+TMDB_LANGUAGES = {"English": "en", "Hindi": "hi", "Punjabi": "pa"}
+SUPPORTED_ERAS = ["Classic", "2000s", "2010s+"]
+REVERSE_GENRES = {v: k for k, v in TMDB_GENRES.items()}
+REVERSE_LANGUAGES = {v: k for k, v in TMDB_LANGUAGES.items()}
 
-MOVIES.extend([
-    {"title": "The Batman", "year": 2022, "genre": "Action", "language": "English"},
-    {"title": "Batman Begins", "year": 2005, "genre": "Action", "language": "English"},
-    {"title": "The Batman", "year": 1989, "genre": "Action", "language": "English"},
-    {"title": "The Avengers", "year": 2012, "genre": "Action", "language": "English"},
-    {"title": "Avengers: Endgame", "year": 2019, "genre": "Action", "language": "English"},
-    {"title": "John Wick", "year": 2014, "genre": "Action", "language": "English"},
-    {"title": "John Wick: Chapter 4", "year": 2023, "genre": "Action", "language": "English"},
-    {"title": "Mission: Impossible - Fallout", "year": 2018, "genre": "Action", "language": "English"},
-    {"title": "Top Gun: Maverick", "year": 2022, "genre": "Action", "language": "English"},
-    {"title": "Casino Royale", "year": 2006, "genre": "Action", "language": "English"},
-    {"title": "The Bourne Ultimatum", "year": 2007, "genre": "Action", "language": "English"},
-    {"title": "Baby Driver", "year": 2017, "genre": "Action", "language": "English"},
-    {"title": "Madras Cafe", "year": 2013, "genre": "Action", "language": "Hindi"},
-
-    {"title": "The Hangover", "year": 2009, "genre": "Comedy", "language": "English"},
-    {"title": "Superbad", "year": 2007, "genre": "Comedy", "language": "English"},
-    {"title": "Crazy Rich Asians", "year": 2018, "genre": "Comedy", "language": "English"},
-    {"title": "Palm Springs", "year": 2020, "genre": "Comedy", "language": "English"},
-    {"title": "Jojo Rabbit", "year": 2019, "genre": "Comedy", "language": "English"},
-    {"title": "The Grand Budapest Hotel", "year": 2014, "genre": "Comedy", "language": "English"},
-    {"title": "Knives Out", "year": 2019, "genre": "Comedy", "language": "English"},
-    {"title": "Glass Onion", "year": 2022, "genre": "Comedy", "language": "English"},
-    {"title": "Queen", "year": 2014, "genre": "Comedy", "language": "Hindi"},
-    {"title": "Bhool Bhulaiyaa", "year": 2007, "genre": "Comedy", "language": "Hindi"},
-    {"title": "Lage Raho Munna Bhai", "year": 2006, "genre": "Comedy", "language": "Hindi"},
-    {"title": "Carry On Jatta 2", "year": 2018, "genre": "Comedy", "language": "Punjabi"},
-    {"title": "Kala Shah Kala", "year": 2019, "genre": "Comedy", "language": "Punjabi"},
-
-    {"title": "Se7en", "year": 1995, "genre": "Crime", "language": "English"},
-    {"title": "Prisoners", "year": 2013, "genre": "Crime", "language": "English"},
-    {"title": "Gone Baby Gone", "year": 2007, "genre": "Crime", "language": "English"},
-    {"title": "The Departed", "year": 2006, "genre": "Crime", "language": "English"},
-    {"title": "Zodiac", "year": 2007, "genre": "Crime", "language": "English"},
-    {"title": "No Country for Old Men", "year": 2007, "genre": "Crime", "language": "English"},
-    {"title": "Heat", "year": 1995, "genre": "Crime", "language": "English"},
-    {"title": "The Irishman", "year": 2019, "genre": "Crime", "language": "English"},
-    {"title": "Drishyam", "year": 2015, "genre": "Crime", "language": "Hindi"},
-    {"title": "Talvar", "year": 2015, "genre": "Crime", "language": "Hindi"},
-
-    {"title": "The Green Mile", "year": 1999, "genre": "Drama", "language": "English"},
-    {"title": "Good Will Hunting", "year": 1997, "genre": "Drama", "language": "English"},
-    {"title": "The Pursuit of Happyness", "year": 2006, "genre": "Drama", "language": "English"},
-    {"title": "The Pianist", "year": 2002, "genre": "Drama", "language": "English"},
-    {"title": "A Beautiful Mind", "year": 2001, "genre": "Drama", "language": "English"},
-    {"title": "Manchester by the Sea", "year": 2016, "genre": "Drama", "language": "English"},
-    {"title": "The Whale", "year": 2022, "genre": "Drama", "language": "English"},
-    {"title": "Taare Zameen Par", "year": 2007, "genre": "Drama", "language": "Hindi"},
-    {"title": "Udaan", "year": 2010, "genre": "Drama", "language": "Hindi"},
-    {"title": "Airlift", "year": 2016, "genre": "Drama", "language": "Hindi"},
-    {"title": "Qismat", "year": 2018, "genre": "Drama", "language": "Punjabi"},
-    {"title": "Chhichhore", "year": 2019, "genre": "Drama", "language": "Hindi"},
-
-    {"title": "The Hobbit: An Unexpected Journey", "year": 2012, "genre": "Adventure", "language": "English"},
-    {"title": "The Hobbit: The Desolation of Smaug", "year": 2013, "genre": "Adventure", "language": "English"},
-    {"title": "The Hobbit: The Battle of the Five Armies", "year": 2014, "genre": "Adventure", "language": "English"},
-    {"title": "Pirates of the Caribbean: The Curse of the Black Pearl", "year": 2003, "genre": "Adventure", "language": "English"},
-    {"title": "Life of Pi", "year": 2012, "genre": "Adventure", "language": "English"},
-    {"title": "Jumanji: Welcome to the Jungle", "year": 2017, "genre": "Adventure", "language": "English"},
-    {"title": "Dune", "year": 2021, "genre": "Adventure", "language": "English"},
-    {"title": "Dune: Part Two", "year": 2024, "genre": "Adventure", "language": "English"},
-
-    {"title": "The Lion King", "year": 1994, "genre": "Animation", "language": "English"},
-    {"title": "Toy Story", "year": 1995, "genre": "Animation", "language": "English"},
-    {"title": "Toy Story 3", "year": 2010, "genre": "Animation", "language": "English"},
-    {"title": "Inside Out", "year": 2015, "genre": "Animation", "language": "English"},
-    {"title": "Soul", "year": 2020, "genre": "Animation", "language": "English"},
-    {"title": "Klaus", "year": 2019, "genre": "Animation", "language": "English"},
-    {"title": "How to Train Your Dragon", "year": 2010, "genre": "Animation", "language": "English"},
-
-    {"title": "Blade Runner", "year": 1982, "genre": "Sci-Fi", "language": "English"},
-    {"title": "The Martian", "year": 2015, "genre": "Sci-Fi", "language": "English"},
-    {"title": "Ex Machina", "year": 2014, "genre": "Sci-Fi", "language": "English"},
-    {"title": "Her", "year": 2013, "genre": "Sci-Fi", "language": "English"},
-    {"title": "Edge of Tomorrow", "year": 2014, "genre": "Sci-Fi", "language": "English"},
-    {"title": "District 9", "year": 2009, "genre": "Sci-Fi", "language": "English"},
-    {"title": "Looper", "year": 2012, "genre": "Sci-Fi", "language": "English"},
-    {"title": "Donnie Darko", "year": 2001, "genre": "Sci-Fi", "language": "English"},
-
-    {"title": "Get Out", "year": 2017, "genre": "Thriller", "language": "English"},
-    {"title": "A Quiet Place", "year": 2018, "genre": "Thriller", "language": "English"},
-    {"title": "A Quiet Place Part II", "year": 2020, "genre": "Thriller", "language": "English"},
-    {"title": "The Invisible Man", "year": 2020, "genre": "Thriller", "language": "English"},
-    {"title": "Sicario", "year": 2015, "genre": "Thriller", "language": "English"},
-    {"title": "Nightcrawler", "year": 2014, "genre": "Thriller", "language": "English"},
-    {"title": "Black Swan", "year": 2010, "genre": "Thriller", "language": "English"},
-
-    {"title": "The Notebook", "year": 2004, "genre": "Romance", "language": "English"},
-    {"title": "Before Sunrise", "year": 1995, "genre": "Romance", "language": "English"},
-    {"title": "Before Sunset", "year": 2004, "genre": "Romance", "language": "English"},
-    {"title": "La La Land", "year": 2016, "genre": "Romance", "language": "English"},
-    {"title": "Pride & Prejudice", "year": 2005, "genre": "Romance", "language": "English"},
-    {"title": "About Time", "year": 2013, "genre": "Romance", "language": "English"},
-    {"title": "Jab We Met", "year": 2007, "genre": "Romance", "language": "Hindi"},
-    {"title": "Barfi!", "year": 2012, "genre": "Romance", "language": "Hindi"},
-    {"title": "Rockstar", "year": 2011, "genre": "Romance", "language": "Hindi"},
-
-    {"title": "The Shape of Water", "year": 2017, "genre": "Fantasy", "language": "English"},
-    {"title": "Doctor Strange", "year": 2016, "genre": "Fantasy", "language": "English"},
-    {"title": "Harry Potter and the Prisoner of Azkaban", "year": 2004, "genre": "Fantasy", "language": "English"},
-    {"title": "Harry Potter and the Goblet of Fire", "year": 2005, "genre": "Fantasy", "language": "English"},
-    {"title": "Harry Potter and the Deathly Hallows: Part 1", "year": 2010, "genre": "Fantasy", "language": "English"},
-    {"title": "Harry Potter and the Deathly Hallows: Part 2", "year": 2011, "genre": "Fantasy", "language": "English"},
-    {"title": "Stardust", "year": 2007, "genre": "Fantasy", "language": "English"},
-
-    {"title": "Logan", "year": 2017, "genre": "Action", "language": "English"},
-    {"title": "Skyfall", "year": 2012, "genre": "Action", "language": "English"},
-    {"title": "The Equalizer", "year": 2014, "genre": "Action", "language": "English"},
-
-    {"title": "Booksmart", "year": 2019, "genre": "Comedy", "language": "English"},
-    {"title": "The Nice Guys", "year": 2016, "genre": "Comedy", "language": "English"},
-    {"title": "Fukrey", "year": 2013, "genre": "Comedy", "language": "Hindi"},
-    {"title": "Shadaa", "year": 2019, "genre": "Comedy", "language": "Punjabi"},
-
-    {"title": "Mystic River", "year": 2003, "genre": "Crime", "language": "English"},
-    {"title": "The Town", "year": 2010, "genre": "Crime", "language": "English"},
-    {"title": "Paatal Lok", "year": 2020, "genre": "Crime", "language": "Hindi"},
-
-    {"title": "12 Years a Slave", "year": 2013, "genre": "Drama", "language": "English"},
-    {"title": "The King's Speech", "year": 2010, "genre": "Drama", "language": "English"},
-    {"title": "Neerja", "year": 2016, "genre": "Drama", "language": "Hindi"},
-    {"title": "Sardar Udham", "year": 2021, "genre": "Drama", "language": "Hindi"},
-
-    {"title": "King Kong", "year": 2005, "genre": "Adventure", "language": "English"},
-    {"title": "Avatar", "year": 2009, "genre": "Adventure", "language": "English"},
-    {"title": "Avatar: The Way of Water", "year": 2022, "genre": "Adventure", "language": "English"},
-
-    {"title": "Moana", "year": 2016, "genre": "Animation", "language": "English"},
-    {"title": "Frozen", "year": 2013, "genre": "Animation", "language": "English"},
-
-    {"title": "Children of Men", "year": 2006, "genre": "Sci-Fi", "language": "English"},
-    {"title": "Moon", "year": 2009, "genre": "Sci-Fi", "language": "English"},
-    {"title": "Source Code", "year": 2011, "genre": "Sci-Fi", "language": "English"},
-
-    {"title": "The Conjuring", "year": 2013, "genre": "Thriller", "language": "English"},
-    {"title": "Shaitaan", "year": 2024, "genre": "Thriller", "language": "Hindi"},
-
-    {"title": "Veer-Zaara", "year": 2004, "genre": "Romance", "language": "Hindi"},
-    {"title": "A Star Is Born", "year": 2018, "genre": "Romance", "language": "English"},
-
-    {"title": "Fantastic Beasts and Where to Find Them", "year": 2016, "genre": "Fantasy", "language": "English"},
-    {"title": "Miss Peregrine's Home for Peculiar Children", "year": 2016, "genre": "Fantasy", "language": "English"},
-
-    {"title": "Django Unchained", "year": 2012, "genre": "Drama", "language": "English"},
-    {"title": "The Revenant", "year": 2015, "genre": "Adventure", "language": "English"},
-    {"title": "Collateral", "year": 2004, "genre": "Thriller", "language": "English"},
-    {"title": "The Imitation Game", "year": 2014, "genre": "Drama", "language": "English"},
-    {"title": "1917", "year": 2019, "genre": "Action", "language": "English"},
-    {"title": "Ford v Ferrari", "year": 2019, "genre": "Action", "language": "English"},
-    {"title": "The Gentlemen", "year": 2019, "genre": "Crime", "language": "English"},
-    {"title": "The Menu", "year": 2022, "genre": "Thriller", "language": "English"},
-    {"title": "The Northman", "year": 2022, "genre": "Adventure", "language": "English"},
-    {"title": "The Last Duel", "year": 2021, "genre": "Drama", "language": "English"},
-    {"title": "No Time to Die", "year": 2021, "genre": "Action", "language": "English"},
-    {"title": "Tenet", "year": 2020, "genre": "Sci-Fi", "language": "English"},
-    {"title": "Everything Everywhere All at Once", "year": 2022, "genre": "Sci-Fi", "language": "English"},
-    {"title": "The Banshees of Inisherin", "year": 2022, "genre": "Comedy", "language": "English"},
-    {"title": "The Fabelmans", "year": 2022, "genre": "Drama", "language": "English"},
-    {"title": "The Holdovers", "year": 2023, "genre": "Comedy", "language": "English"},
-    {"title": "Scream", "year": 2022, "genre": "Thriller", "language": "English"},
-    {"title": "Smile", "year": 2022, "genre": "Thriller", "language": "English"},
-    {"title": "Creed", "year": 2015, "genre": "Drama", "language": "English"},
-    {"title": "Creed III", "year": 2023, "genre": "Drama", "language": "English"},
-
-    {"title": "Dil Chahta Hai", "year": 2001, "genre": "Comedy", "language": "Hindi"},
-    {"title": "Kabir Singh", "year": 2019, "genre": "Drama", "language": "Hindi"},
-    {"title": "Raazi", "year": 2018, "genre": "Thriller", "language": "Hindi"},
-    {"title": "Article 15", "year": 2019, "genre": "Crime", "language": "Hindi"},
-    {"title": "Badhaai Ho", "year": 2018, "genre": "Comedy", "language": "Hindi"},
-    {"title": "Mimi", "year": 2021, "genre": "Drama", "language": "Hindi"},
-    {"title": "Monica, O My Darling", "year": 2022, "genre": "Crime", "language": "Hindi"},
-    {"title": "Tumbbad", "year": 2018, "genre": "Fantasy", "language": "Hindi"},
-    {"title": "Bhediya", "year": 2022, "genre": "Fantasy", "language": "Hindi"},
-    {"title": "Shershaah", "year": 2021, "genre": "Action", "language": "Hindi"},
-    {"title": "Pathaan", "year": 2023, "genre": "Action", "language": "Hindi"},
-    {"title": "Dunki", "year": 2023, "genre": "Comedy", "language": "Hindi"},
-    {"title": "Rocky Aur Rani Kii Prem Kahaani", "year": 2023, "genre": "Romance", "language": "Hindi"},
-    {"title": "Satyaprem Ki Katha", "year": 2023, "genre": "Romance", "language": "Hindi"},
-
-    {"title": "Chal Mera Putt", "year": 2019, "genre": "Comedy", "language": "Punjabi"},
-    {"title": "Shadaa", "year": 2019, "genre": "Comedy", "language": "Punjabi"},
-    {"title": "Bambukat", "year": 2016, "genre": "Romance", "language": "Punjabi"},
-    {"title": "Lahoriye", "year": 2017, "genre": "Romance", "language": "Punjabi"},
-    {"title": "Sufna", "year": 2020, "genre": "Romance", "language": "Punjabi"},
-    {"title": "Mastaney", "year": 2023, "genre": "Action", "language": "Punjabi"},
-    {"title": "Qismat 2", "year": 2021, "genre": "Drama", "language": "Punjabi"},
-    {"title": "Maa Da Ladla", "year": 2022, "genre": "Comedy", "language": "Punjabi"},
-    {"title": "Warning", "year": 2021, "genre": "Action", "language": "Punjabi"},
-    {"title": "Warning 2", "year": 2024, "genre": "Action", "language": "Punjabi"},
-])
-
-
-def ensure_movie_ids(movies: List[dict]) -> None:
-    numeric_ids = [int(movie["id"]) for movie in movies if str(movie.get("id", "")).isdigit()]
-    next_id = max(numeric_ids) + 1 if numeric_ids else 1
-
-    for movie in movies:
-        if not str(movie.get("id", "")).strip():
-            movie["id"] = str(next_id)
-            next_id += 1
-
-
-ensure_movie_ids(MOVIES)
-
+def get_tmdb_api_key():
+    return os.environ.get("TMDB_API_KEY")
 
 def build_poster_fallback(title: str) -> str:
     return f"https://placehold.co/600x900/101010/ffffff/png?text={quote_plus(title)}"
 
+async def fetch_tmdb_movies(genres: list[str], languages: list[str], page: int = 1) -> list[dict]:
+    api_key = get_tmdb_api_key()
+    if not api_key:
+        logger.error("No TMDB_API_KEY set.")
+        return []
 
-def is_reachable_image(url: str) -> bool:
-    if not url:
-        return False
+    # Map genres to TMDB IDs
+    genre_ids = [TMDB_GENRES[g] for g in genres if g in TMDB_GENRES]
+    
+    # Map languages to TMDB ISO codes
+    lang_codes = [TMDB_LANGUAGES[l] for l in languages if l in TMDB_LANGUAGES]
+    
+    query = {
+        "api_key": api_key,
+        "page": page,
+        "sort_by": "popularity.desc",
+        "include_adult": "false",
+        "vote_count.gte": "100" # Only fetch movies with at least 100 votes to ensure quality
+    }
+    
+    if genre_ids:
+        query["with_genres"] = "|".join(genre_ids)
+    if lang_codes:
+        query["with_original_language"] = "|".join(lang_codes)
 
-    try:
-        req = Request(url, method="HEAD")
-        with urlopen(req, timeout=4) as response:
-            status = getattr(response, "status", 200)
-            return 200 <= status < 400
-    except Exception:
-        try:
-            req = Request(url, method="GET")
-            with urlopen(req, timeout=4) as response:
-                status = getattr(response, "status", 200)
-                return 200 <= status < 400
-        except Exception:
-            return False
+    endpoint = f"https://api.themoviedb.org/3/discover/movie?{urlencode(query)}"
 
-
-def fetch_tmdb_poster(title: str, year: int) -> str:
-    tmdb_api_key = os.environ.get("TMDB_API_KEY")
-    if not tmdb_api_key:
-        return ""
-
-    query = urlencode({
-        "api_key": tmdb_api_key,
-        "query": title,
-        "primary_release_year": year,
-        "include_adult": "false"
-    })
-    endpoint = f"https://api.themoviedb.org/3/search/movie?{query}"
-
-    try:
+    def _fetch():
         req = Request(endpoint, headers={"User-Agent": "MovieMatch/1.0"})
-        with urlopen(req, timeout=6) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-            results = payload.get("results", [])
-            if results and results[0].get("poster_path"):
-                return f"https://image.tmdb.org/t/p/w500{results[0]['poster_path']}"
+        with urlopen(req, timeout=10) as response:
+            return json.loads(response.read().decode("utf-8")).get("results", [])
+            
+    try:
+        results = await asyncio.to_thread(_fetch)
+    except Exception as e:
+        logger.error(f"Failed to fetch from TMDB: {e}")
+        return []
+        
+    movies = []
+    for m in results:
+        title = m.get("title") or m.get("original_title") or "Unknown"
+        year = int(m.get("release_date", "0")[:4]) if m.get("release_date") else 0
+        poster_path = m.get("poster_path")
+        poster = f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else build_poster_fallback(title)
+        
+        # Best guess mapping for genre and language
+        primary_genre = "Drama"
+        if m.get("genre_ids"):
+            primary_genre = REVERSE_GENRES.get(str(m.get("genre_ids")[0]), "Drama")
+            
+        lang = REVERSE_LANGUAGES.get(m.get("original_language", "en"), "English")
+
+        movies.append({
+            "id": str(m.get("id")),
+            "title": title,
+            "year": year,
+            "poster": poster,
+            "genre": primary_genre,
+            "language": lang,
+            "trailer_url": f"https://www.youtube.com/results?search_query={quote_plus(title)}+official+trailer"
+        })
+        
+    return movies
+
+async def fetch_movie_by_id(movie_id: str) -> dict:
+    api_key = get_tmdb_api_key()
+    if not api_key:
+        return {}
+        
+    endpoint = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}"
+    
+    def _fetch():
+        req = Request(endpoint, headers={"User-Agent": "MovieMatch/1.0"})
+        with urlopen(req, timeout=5) as response:
+            return json.loads(response.read().decode("utf-8"))
+            
+    try:
+        m = await asyncio.to_thread(_fetch)
+        title = m.get("title", "")
+        poster_path = m.get("poster_path")
+        return {
+            "id": str(m.get("id")),
+            "title": title,
+            "year": int(m.get("release_date", "0")[:4]) if m.get("release_date") else 0,
+            "poster": f"https://image.tmdb.org/t/p/w500{poster_path}" if poster_path else build_poster_fallback(title)
+        }
     except Exception:
-        pass
-
-    return ""
+        return {}
 
 
-def enrich_posters(movies: List[dict]) -> None:
-    resolved: dict[tuple[str, int], str] = {}
-
-    for movie in movies:
-        title = movie["title"]
-        year = movie["year"]
-        existing = (movie.get("poster") or "").strip()
-
-        # Trust curated URLs to avoid expensive startup-time network checks.
-        if existing:
-            resolved[(title, year)] = existing
-            continue
-
-        cached = resolved.get((title, year), "")
-        if cached:
-            movie["poster"] = cached
-            continue
-
-        fetched = fetch_tmdb_poster(title, year)
-        if fetched and is_reachable_image(fetched):
-            movie["poster"] = fetched
-            resolved[(title, year)] = fetched
-
-
-enrich_posters(MOVIES)
-
-
-# Ensure every movie has stable fallback assets.
-for movie in MOVIES:
-    movie["poster_fallback"] = build_poster_fallback(movie["title"])
-    if not movie.get("poster"):
-        movie["poster"] = movie["poster_fallback"]
-    trailer_id = movie.get("trailer", "").strip()
-    if trailer_id:
-        movie["trailer_url"] = f"https://www.youtube.com/watch?v={trailer_id}&t=30s"
-    else:
-        movie["trailer_url"] = (
-            "https://www.youtube.com/results?search_query="
-            + quote_plus(f"{movie['title']} official trailer")
-        )
-
-
-REAL_POSTER_MOVIES = [
-    movie for movie in MOVIES if movie.get("poster") and movie.get("poster") != movie.get("poster_fallback")
-]
-
-
-def get_active_movies() -> List[dict]:
-    # Prefer movies with real posters; fallback to full list if enrichment ever under-delivers.
-    return REAL_POSTER_MOVIES if REAL_POSTER_MOVIES else MOVIES
 
 
 def year_to_era(year: int) -> str:
@@ -552,8 +320,7 @@ async def start_swiping(request: StartSwipingRequest):
 
 @api_router.get("/genres")
 async def get_genres():
-    genres = sorted({movie["genre"] for movie in get_active_movies()})
-    return genres
+    return sorted(list(TMDB_GENRES.keys()))
 
 
 @api_router.get("/languages")
@@ -563,27 +330,13 @@ async def get_languages():
 
 @api_router.get("/eras")
 async def get_eras():
-    return ["Classic", "2000s", "2010s+"]
+    return SUPPORTED_ERAS
 
 
 @api_router.get("/movies")
 async def get_movies(genres: Optional[str] = Query(default=None)):
-    active_movies = get_active_movies()
-    if not genres:
-        return active_movies
-
-    genre_filter = {
-        genre.strip().lower()
-        for genre in genres.split(",")
-        if genre.strip()
-    }
-
-    if not genre_filter:
-        return active_movies
-
-    return [
-        movie for movie in active_movies if movie["genre"].strip().lower() in genre_filter
-    ]
+    parsed_genres = [g.strip() for g in genres.split(",")] if genres else []
+    return await fetch_tmdb_movies(parsed_genres, list(TMDB_LANGUAGES.keys()), page=1)
 
 
 @api_router.post("/rooms/preferences")
@@ -606,7 +359,7 @@ async def submit_genre_preferences(request: GenrePreferencesRequest):
     if not cleaned_languages:
         raise HTTPException(status_code=400, detail="Select at least one language")
 
-    valid_genres = {movie["genre"] for movie in get_active_movies()}
+    valid_genres = set(TMDB_GENRES.keys())
     valid_languages = set(SUPPORTED_LANGUAGES)
 
     invalid = [genre for genre in cleaned_genres if genre not in valid_genres]
@@ -650,7 +403,7 @@ async def submit_genre_preferences(request: GenrePreferencesRequest):
 
 
 @api_router.get("/rooms/{room_code}/movies")
-async def get_room_movies(room_code: str):
+async def get_room_movies(room_code: str, page: int = Query(default=1)):
     normalized_code = room_code.strip().upper()
     room = await db.rooms.find_one({"code": normalized_code}, {"_id": 0})
     if not room:
@@ -674,24 +427,13 @@ async def get_room_movies(room_code: str):
             for language in member_preferences.get("languages", [])
         }
     )
+    
+    # Defaults if none selected yet
+    query_genres = merged_genres if merged_genres else list(TMDB_GENRES.keys())
+    query_languages = merged_languages if merged_languages else list(TMDB_LANGUAGES.keys())
 
-    if not merged_genres and not merged_languages:
-        movies = get_active_movies()
-    else:
-        merged_lookup = {genre.lower() for genre in merged_genres}
-        merged_language_lookup = {language.lower() for language in merged_languages}
-        movies = [
-            movie
-            for movie in get_active_movies()
-            if (
-                (not merged_lookup or movie["genre"].strip().lower() in merged_lookup)
-                and (
-                    not merged_language_lookup
-                    or movie.get("language", "English").strip().lower()
-                    in merged_language_lookup
-                )
-            )
-        ]
+    # Fetch dynamic batch from TMDB
+    movies = await fetch_tmdb_movies(query_genres, query_languages, page=page)
 
     waiting_for = max(total_members - selected_members, 0)
     return {
@@ -721,8 +463,7 @@ async def record_swipe(swipe: SwipeRequest):
     if swipe.user_id not in user_ids:
         raise HTTPException(status_code=403, detail="User is not a member of this room")
 
-    if not any(movie["id"] == swipe.movie_id for movie in MOVIES):
-        raise HTTPException(status_code=404, detail="Movie not found")
+
 
     # Store swipe
     swipe_doc = {
@@ -770,8 +511,13 @@ async def record_swipe(swipe: SwipeRequest):
                 }
                 await db.matches.insert_one(match_doc)
 
-                # Get movie details
-                movie = next((m for m in MOVIES if m["id"] == swipe.movie_id), None)
+                # Get movie details dynamically
+                movie = await fetch_movie_by_id(swipe.movie_id)
+                if movie:
+                    await db.matches.update_one(
+                        {"room_code": room_code, "movie_id": swipe.movie_id},
+                        {"$set": {"movie_cache": movie}}
+                    )
 
                 # Notify all room members
                 await manager.send_to_room({
@@ -785,11 +531,17 @@ async def record_swipe(swipe: SwipeRequest):
 async def get_matches(room_code: str):
     matches = await db.matches.find({"room_code": room_code}, {"_id": 0}).to_list(100)
     
-    # Enrich with movie details
     for match in matches:
-        movie = next((m for m in MOVIES if m["id"] == match["movie_id"]), None)
-        match["movie"] = movie
-    
+        if "movie_cache" in match:
+            match["movie"] = match["movie_cache"]
+        else:
+            # Fallback if cached data not found
+            match["movie"] = await fetch_movie_by_id(match["movie_id"])
+            await db.matches.update_one(
+                {"room_code": room_code, "movie_id": match["movie_id"]},
+                {"$set": {"movie_cache": match["movie"]}}
+            )
+            
     return matches
 
 @api_router.websocket("/ws/{room_code}")
