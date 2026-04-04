@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -6,7 +6,7 @@ import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-mo
 import { Film, Users, Copy, Check } from "lucide-react";
 import { Toaster, toast } from "sonner";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
 const API = `${BACKEND_URL}/api`;
 const WS_URL = BACKEND_URL.replace('https://', 'wss://').replace('http://', 'ws://') + '/api';
 
@@ -171,6 +171,17 @@ const Room = () => {
   const [room, setRoom] = useState(null);
   const [copied, setCopied] = useState(false);
   const userId = localStorage.getItem('user_id');
+  const wsErrorShownRef = useRef(false);
+
+  const loadRoom = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API}/rooms/${roomCode}`);
+      setRoom(response.data);
+    } catch (error) {
+      toast.error("Room not found");
+      navigate('/');
+    }
+  }, [navigate, roomCode]);
 
   useEffect(() => {
     if (!userId) {
@@ -179,7 +190,14 @@ const Room = () => {
     }
 
     loadRoom();
+    let intentionalClose = false;
+    let hasOpened = false;
     const ws = new WebSocket(`${WS_URL}/ws/${roomCode}`);
+
+    ws.onopen = () => {
+      hasOpened = true;
+      wsErrorShownRef.current = false;
+    };
     
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -191,18 +209,26 @@ const Room = () => {
       }
     };
 
-    return () => ws.close();
-  }, [roomCode]);
+    ws.onerror = () => {
+      // Browser onerror is intentionally generic; rely on onclose for actionable UX.
+    };
 
-  const loadRoom = async () => {
-    try {
-      const response = await axios.get(`${API}/rooms/${roomCode}`);
-      setRoom(response.data);
-    } catch (error) {
-      toast.error("Room not found");
-      navigate('/');
-    }
-  };
+    ws.onclose = (event) => {
+      if (intentionalClose) {
+        return;
+      }
+
+      if (hasOpened && !event.wasClean && !wsErrorShownRef.current) {
+        wsErrorShownRef.current = true;
+        toast.error("Connection issue detected. Please refresh.");
+      }
+    };
+
+    return () => {
+      intentionalClose = true;
+      ws.close();
+    };
+  }, [loadRoom, navigate, roomCode, userId]);
 
   const copyRoomCode = async () => {
     try {
@@ -295,6 +321,8 @@ const MovieCard = ({ movie, onSwipe }) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-20, 20]);
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
+  const [posterFailed, setPosterFailed] = useState(false);
+  const [usingFallbackPoster, setUsingFallbackPoster] = useState(false);
 
   const handleDragEnd = (event, info) => {
     if (info.offset.x > 100) {
@@ -314,11 +342,28 @@ const MovieCard = ({ movie, onSwipe }) => {
       whileTap={{ scale: 0.95 }}
     >
       <div className="relative w-full h-full rounded-xl overflow-hidden" style={{ boxShadow: '0 0 40px rgba(229, 9, 20, 0.4)' }} data-testid="movie-card">
-        <img 
-          src={movie.poster} 
-          alt={movie.title} 
-          className="w-full h-full object-cover"
-        />
+        {!posterFailed ? (
+          <img
+            src={usingFallbackPoster ? movie.poster_fallback : movie.poster}
+            alt={movie.title}
+            className="w-full h-full object-cover"
+            onError={() => {
+              if (!usingFallbackPoster && movie.poster_fallback) {
+                setUsingFallbackPoster(true);
+                return;
+              }
+              setPosterFailed(true);
+            }}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-b from-zinc-800 to-zinc-950 flex items-center justify-center p-6">
+            <div className="text-center space-y-3">
+              <Film className="w-12 h-12 text-cinema-red mx-auto" />
+              <p className="text-white font-secondary text-2xl tracking-wide uppercase">{movie.title}</p>
+              <p className="text-white/60 text-sm uppercase tracking-widest">Poster unavailable</p>
+            </div>
+          </div>
+        )}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6 space-y-2">
           <h3 className="font-secondary text-3xl text-white tracking-wide uppercase" data-testid="movie-title">{movie.title}</h3>
           <div className="flex items-center gap-3 text-sm">
@@ -328,15 +373,43 @@ const MovieCard = ({ movie, onSwipe }) => {
           </div>
         </div>
         
-        {movie.trailer && (
-          <div className="absolute top-4 right-4">
-            <div className="w-32 h-20 rounded-lg overflow-hidden border-2 border-white/20">
-              <iframe
-                src={`https://www.youtube.com/embed/${movie.trailer}?autoplay=1&mute=1&controls=0&loop=1&playlist=${movie.trailer}`}
-                className="w-full h-full"
-                allow="autoplay"
-              />
-            </div>
+        {(movie.trailer_url || movie.imdb_url) && (
+          <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
+            {movie.trailer_url && (
+              <a
+                href={movie.trailer_url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-2 bg-black/70 border border-white/20 text-white text-xs uppercase tracking-wide hover:bg-black/85 transition-colors"
+                data-testid="movie-trailer-link"
+              >
+                Trailer
+              </a>
+            )}
+
+            {movie.imdb_url && (
+              <a
+                href={movie.imdb_url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-2 bg-black/70 border border-white/20 text-white text-xs uppercase tracking-wide hover:bg-black/85 transition-colors"
+                data-testid="movie-imdb-link"
+              >
+                IMDb
+              </a>
+            )}
+
+            {movie.imdb_poster_url && (
+              <a
+                href={movie.imdb_poster_url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-2 bg-black/70 border border-white/20 text-white text-xs uppercase tracking-wide hover:bg-black/85 transition-colors"
+                data-testid="movie-imdb-poster-link"
+              >
+                IMDb Poster
+              </a>
+            )}
           </div>
         )}
       </div>
@@ -348,10 +421,135 @@ const Swipe = () => {
   const { roomCode } = useParams();
   const navigate = useNavigate();
   const [movies, setMovies] = useState([]);
+  const [availableGenres, setAvailableGenres] = useState([]);
+  const [availableLanguages, setAvailableLanguages] = useState([]);
+  const [availableEras, setAvailableEras] = useState([]);
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [selectedLanguages, setSelectedLanguages] = useState([]);
+  const [selectedEras, setSelectedEras] = useState([]);
+  const [showGenrePicker, setShowGenrePicker] = useState(true);
+  const [waitingForMembers, setWaitingForMembers] = useState(false);
+  const [selectedMembers, setSelectedMembers] = useState(0);
+  const [totalMembers, setTotalMembers] = useState(0);
+  const [selectionSubmitted, setSelectionSubmitted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showMatch, setShowMatch] = useState(false);
   const [matchedMovie, setMatchedMovie] = useState(null);
   const [userId, setUserId] = useState(localStorage.getItem('user_id'));
+  const wsErrorShownRef = useRef(false);
+
+  const loadGenres = useCallback(async () => {
+    try {
+      const [genreResponse, languageResponse, eraResponse] = await Promise.all([
+        axios.get(`${API}/genres`),
+        axios.get(`${API}/languages`),
+        axios.get(`${API}/eras`),
+      ]);
+      setAvailableGenres(genreResponse.data);
+      setAvailableLanguages(languageResponse.data);
+      setAvailableEras(eraResponse.data);
+    } catch (error) {
+      toast.error("Failed to load preference options");
+    }
+  }, []);
+
+  const loadRoomMovies = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API}/rooms/${roomCode}/movies`);
+      const {
+        movies: roomMovies,
+        waiting_for,
+        selected_members,
+        total_members,
+      } = response.data;
+
+      setSelectedMembers(selected_members);
+      setTotalMembers(total_members);
+      setWaitingForMembers(waiting_for > 0);
+
+      if (waiting_for > 0) {
+        setMovies([]);
+        return false;
+      }
+
+      setMovies(roomMovies);
+
+      if (roomMovies.length === 0) {
+        toast.error("No movies found for the merged categories");
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      toast.error("Failed to load movies");
+      return false;
+    }
+  }, [roomCode]);
+
+  const toggleGenre = (genre) => {
+    setSelectedGenres((prev) => {
+      if (prev.includes(genre)) {
+        return prev.filter((item) => item !== genre);
+      }
+      return [...prev, genre];
+    });
+  };
+
+  const toggleLanguage = (language) => {
+    setSelectedLanguages((prev) => {
+      if (prev.includes(language)) {
+        return prev.filter((item) => item !== language);
+      }
+      return [...prev, language];
+    });
+  };
+
+  const toggleEra = (era) => {
+    setSelectedEras((prev) => {
+      if (prev.includes(era)) {
+        return prev.filter((item) => item !== era);
+      }
+      return [...prev, era];
+    });
+  };
+
+  const startWithSelectedGenres = async () => {
+    if (selectedGenres.length === 0) {
+      toast.error("Select at least one category");
+      return;
+    }
+
+    if (selectedLanguages.length === 0) {
+      toast.error("Select at least one language");
+      return;
+    }
+
+    if (selectedEras.length === 0) {
+      toast.error("Select at least one release era");
+      return;
+    }
+
+    try {
+      await axios.post(`${API}/rooms/preferences`, {
+        room_code: roomCode,
+        user_id: userId,
+        genres: selectedGenres,
+        languages: selectedLanguages,
+        eras: selectedEras,
+      });
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to save categories");
+      return;
+    }
+
+    setSelectionSubmitted(true);
+    setShowGenrePicker(false);
+
+    const loaded = await loadRoomMovies();
+    if (loaded) {
+      setCurrentIndex(0);
+    }
+  };
 
   useEffect(() => {
     // Give a moment for localStorage to be available
@@ -368,32 +566,66 @@ const Swipe = () => {
       return;
     }
 
-    loadMovies();
+    loadGenres();
+    let intentionalClose = false;
+    let hasOpened = false;
     
     const ws = new WebSocket(`${WS_URL}/ws/${roomCode}`);
+
+    ws.onopen = () => {
+      hasOpened = true;
+      wsErrorShownRef.current = false;
+    };
     
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === 'match') {
         setMatchedMovie(data.movie);
         setShowMatch(true);
+      } else if (data.type === 'preferences_updated' && selectionSubmitted) {
+        loadRoomMovies();
       }
     };
 
-    return () => ws.close();
-  }, [roomCode]);
+    ws.onerror = () => {
+      // Browser onerror is intentionally generic; rely on onclose for actionable UX.
+    };
 
-  const loadMovies = async () => {
-    try {
-      const response = await axios.get(`${API}/movies`);
-      setMovies(response.data);
-    } catch (error) {
-      toast.error("Failed to load movies");
+    ws.onclose = (event) => {
+      if (intentionalClose) {
+        return;
+      }
+
+      if (hasOpened && !event.wasClean && !wsErrorShownRef.current) {
+        wsErrorShownRef.current = true;
+        toast.error("Live updates disconnected. Try refreshing.");
+      }
+    };
+
+    return () => {
+      intentionalClose = true;
+      ws.close();
+    };
+  }, [loadGenres, loadRoomMovies, navigate, roomCode, selectionSubmitted]);
+
+  useEffect(() => {
+    if (!selectionSubmitted || !waitingForMembers) {
+      return;
     }
-  };
+
+    const timer = setInterval(() => {
+      loadRoomMovies();
+    }, 2000);
+
+    return () => clearInterval(timer);
+  }, [loadRoomMovies, selectionSubmitted, waitingForMembers]);
 
   const handleSwipe = async (direction) => {
     const movie = movies[currentIndex];
+
+    if (!movie) {
+      return;
+    }
     
     try {
       await axios.post(`${API}/swipe`, {
@@ -413,7 +645,114 @@ const Swipe = () => {
     }
   };
 
-  if (movies.length === 0) return null;
+  if (showGenrePicker) {
+    return (
+      <div className="min-h-screen bg-cinema-black film-grain flex items-center justify-center p-4">
+        <div className="max-w-md w-full backdrop-blur-xl bg-black/60 border border-white/10 rounded-xl p-6 space-y-6">
+          <div className="text-center space-y-3">
+            <Film className="w-12 h-12 text-cinema-red mx-auto" style={{ filter: 'drop-shadow(0 0 20px rgba(229, 9, 20, 0.5))' }} />
+            <h2 className="font-secondary text-3xl text-white tracking-wide uppercase" data-testid="genre-selection-title">Pick Your Categories</h2>
+            <p className="text-white/60 text-sm" data-testid="genre-selection-subtitle">Choose genre, language, and release era before swiping.</p>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-white/70 text-xs uppercase tracking-wider" data-testid="question-genres">1. Which genres do you like?</p>
+            <div className="grid grid-cols-2 gap-3">
+            {availableGenres.map((genre) => {
+              const isSelected = selectedGenres.includes(genre);
+              return (
+                <button
+                  key={genre}
+                  onClick={() => toggleGenre(genre)}
+                  className={`rounded-lg px-3 py-2 text-sm font-bold uppercase tracking-wide transition-colors ${
+                    isSelected
+                      ? 'bg-cinema-red text-white shadow-[0_0_15px_rgba(229,9,20,0.5)]'
+                      : 'bg-white/5 text-white/80 border border-white/10 hover:bg-white/10'
+                  }`}
+                  data-testid={`genre-option-${genre.toLowerCase()}`}
+                >
+                  {genre}
+                </button>
+              );
+            })}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-white/70 text-xs uppercase tracking-wider" data-testid="question-languages">2. Preferred language?</p>
+            <div className="grid grid-cols-2 gap-3">
+              {availableLanguages.map((language) => {
+                const isSelected = selectedLanguages.includes(language);
+                return (
+                  <button
+                    key={language}
+                    onClick={() => toggleLanguage(language)}
+                    className={`rounded-lg px-3 py-2 text-sm font-bold uppercase tracking-wide transition-colors ${
+                      isSelected
+                        ? 'bg-cinema-red text-white shadow-[0_0_15px_rgba(229,9,20,0.5)]'
+                        : 'bg-white/5 text-white/80 border border-white/10 hover:bg-white/10'
+                    }`}
+                    data-testid={`language-option-${language.toLowerCase()}`}
+                  >
+                    {language}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-white/70 text-xs uppercase tracking-wider" data-testid="question-era">3. Which release era?</p>
+            <div className="grid grid-cols-3 gap-3">
+              {availableEras.map((era) => {
+                const isSelected = selectedEras.includes(era);
+                return (
+                  <button
+                    key={era}
+                    onClick={() => toggleEra(era)}
+                    className={`rounded-lg px-3 py-2 text-sm font-bold uppercase tracking-wide transition-colors ${
+                      isSelected
+                        ? 'bg-cinema-red text-white shadow-[0_0_15px_rgba(229,9,20,0.5)]'
+                        : 'bg-white/5 text-white/80 border border-white/10 hover:bg-white/10'
+                    }`}
+                    data-testid={`era-option-${era.toLowerCase().replace(/\+/g, 'plus')}`}
+                  >
+                    {era}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <button
+            onClick={startWithSelectedGenres}
+            className="w-full bg-cinema-red text-white rounded-full py-4 font-bold uppercase tracking-widest hover:bg-red-700 transition-colors shadow-[0_0_15px_rgba(229,9,20,0.5)]"
+            data-testid="start-with-categories-btn"
+          >
+            Start Swiping
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (movies.length === 0) {
+    return (
+      <div className="min-h-screen bg-cinema-black film-grain flex items-center justify-center p-4">
+        <div className="text-center space-y-4">
+          <h2 className="font-secondary text-3xl text-white tracking-wide uppercase" data-testid="loading-movies-title">
+            {waitingForMembers ? "Waiting For Others..." : "Loading Movies..."}
+          </h2>
+          <p className="text-white/60 text-sm" data-testid="loading-movies-subtitle">
+            {waitingForMembers
+              ? `${selectedMembers}/${totalMembers} members selected categories. Building a merged list.`
+              : "Getting picks for your selected categories."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (currentIndex >= movies.length) {
     return (
       <div className="min-h-screen bg-cinema-black film-grain flex items-center justify-center p-4">
