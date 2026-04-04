@@ -172,14 +172,22 @@ const Room = () => {
   const [copied, setCopied] = useState(false);
   const userId = localStorage.getItem('user_id');
   const wsErrorShownRef = useRef(false);
+  const wsReconnectAttemptsRef = useRef(0);
+  const wsReconnectTimerRef = useRef(null);
+  const wsRef = useRef(null);
 
   const loadRoom = useCallback(async () => {
     try {
       const response = await axios.get(`${API}/rooms/${roomCode}`);
       setRoom(response.data);
     } catch (error) {
-      toast.error("Room not found");
-      navigate('/');
+      if (error.response?.status === 404) {
+        toast.error("Room not found");
+        navigate('/');
+        return;
+      }
+
+      toast.error("Connection lost. Reconnecting...");
     }
   }, [navigate, roomCode]);
 
@@ -191,42 +199,72 @@ const Room = () => {
 
     loadRoom();
     let intentionalClose = false;
-    let hasOpened = false;
-    const ws = new WebSocket(`${WS_URL}/ws/${roomCode}`);
 
-    ws.onopen = () => {
-      hasOpened = true;
-      wsErrorShownRef.current = false;
+    const connectWebSocket = () => {
+      const ws = new WebSocket(`${WS_URL}/ws/${roomCode}`);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        wsReconnectAttemptsRef.current = 0;
+        wsErrorShownRef.current = false;
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'member_joined') {
+          loadRoom();
+          toast.success(`${data.username} joined the room!`);
+        } else if (data.type === 'room_started') {
+          navigate(`/swipe/${roomCode}`);
+        }
+      };
+
+      ws.onerror = () => {
+        // Browser onerror is intentionally generic; rely on onclose for actionable UX.
+      };
+
+      ws.onclose = (event) => {
+        if (intentionalClose) {
+          return;
+        }
+
+        if (!event.wasClean && !wsErrorShownRef.current) {
+          wsErrorShownRef.current = true;
+          toast.error("Live connection lost. Reconnecting...");
+        }
+
+        const attempts = wsReconnectAttemptsRef.current;
+        const delayMs = Math.min(1000 * Math.pow(2, attempts), 5000);
+        wsReconnectAttemptsRef.current += 1;
+
+        wsReconnectTimerRef.current = setTimeout(() => {
+          if (!intentionalClose) {
+            connectWebSocket();
+            loadRoom();
+          }
+        }, delayMs);
+      };
     };
-    
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'member_joined') {
+
+    connectWebSocket();
+
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
         loadRoom();
-        toast.success(`${data.username} joined the room!`);
-      } else if (data.type === 'room_started') {
-        navigate(`/swipe/${roomCode}`);
       }
     };
 
-    ws.onerror = () => {
-      // Browser onerror is intentionally generic; rely on onclose for actionable UX.
-    };
-
-    ws.onclose = (event) => {
-      if (intentionalClose) {
-        return;
-      }
-
-      if (hasOpened && !event.wasClean && !wsErrorShownRef.current) {
-        wsErrorShownRef.current = true;
-        toast.error("Connection issue detected. Please refresh.");
-      }
-    };
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    window.addEventListener('focus', handleVisibilityOrFocus);
 
     return () => {
       intentionalClose = true;
-      ws.close();
+      if (wsReconnectTimerRef.current) {
+        clearTimeout(wsReconnectTimerRef.current);
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      wsRef.current?.close();
     };
   }, [loadRoom, navigate, roomCode, userId]);
 
@@ -250,7 +288,16 @@ const Room = () => {
     }
   };
 
-  if (!room) return null;
+  if (!room) {
+    return (
+      <div className="min-h-screen bg-cinema-black film-grain flex items-center justify-center p-4">
+        <div className="text-center space-y-3">
+          <h2 className="font-secondary text-3xl text-white tracking-wide uppercase" data-testid="room-loading-title">Reconnecting Room...</h2>
+          <p className="text-white/60 text-sm" data-testid="room-loading-subtitle">Please wait while we restore your room session.</p>
+        </div>
+      </div>
+    );
+  }
 
   const isCreator = room.members[0]?.user_id === userId;
 
@@ -437,6 +484,9 @@ const Swipe = () => {
   const [matchedMovie, setMatchedMovie] = useState(null);
   const [userId, setUserId] = useState(localStorage.getItem('user_id'));
   const wsErrorShownRef = useRef(false);
+  const wsReconnectAttemptsRef = useRef(0);
+  const wsReconnectTimerRef = useRef(null);
+  const wsRef = useRef(null);
 
   const loadGenres = useCallback(async () => {
     try {
@@ -568,43 +618,74 @@ const Swipe = () => {
 
     loadGenres();
     let intentionalClose = false;
-    let hasOpened = false;
-    
-    const ws = new WebSocket(`${WS_URL}/ws/${roomCode}`);
 
-    ws.onopen = () => {
-      hasOpened = true;
-      wsErrorShownRef.current = false;
+    const connectWebSocket = () => {
+      const ws = new WebSocket(`${WS_URL}/ws/${roomCode}`);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        wsReconnectAttemptsRef.current = 0;
+        wsErrorShownRef.current = false;
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'match') {
+          setMatchedMovie(data.movie);
+          setShowMatch(true);
+        } else if (data.type === 'preferences_updated' && selectionSubmitted) {
+          loadRoomMovies();
+        }
+      };
+
+      ws.onerror = () => {
+        // Browser onerror is intentionally generic; rely on onclose for actionable UX.
+      };
+
+      ws.onclose = (event) => {
+        if (intentionalClose) {
+          return;
+        }
+
+        if (!event.wasClean && !wsErrorShownRef.current) {
+          wsErrorShownRef.current = true;
+          toast.error("Live updates disconnected. Reconnecting...");
+        }
+
+        const attempts = wsReconnectAttemptsRef.current;
+        const delayMs = Math.min(1000 * Math.pow(2, attempts), 5000);
+        wsReconnectAttemptsRef.current += 1;
+
+        wsReconnectTimerRef.current = setTimeout(() => {
+          if (!intentionalClose) {
+            connectWebSocket();
+            if (selectionSubmitted) {
+              loadRoomMovies();
+            }
+          }
+        }, delayMs);
+      };
     };
-    
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'match') {
-        setMatchedMovie(data.movie);
-        setShowMatch(true);
-      } else if (data.type === 'preferences_updated' && selectionSubmitted) {
+
+    connectWebSocket();
+
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible' && selectionSubmitted) {
         loadRoomMovies();
       }
     };
 
-    ws.onerror = () => {
-      // Browser onerror is intentionally generic; rely on onclose for actionable UX.
-    };
-
-    ws.onclose = (event) => {
-      if (intentionalClose) {
-        return;
-      }
-
-      if (hasOpened && !event.wasClean && !wsErrorShownRef.current) {
-        wsErrorShownRef.current = true;
-        toast.error("Live updates disconnected. Try refreshing.");
-      }
-    };
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    window.addEventListener('focus', handleVisibilityOrFocus);
 
     return () => {
       intentionalClose = true;
-      ws.close();
+      if (wsReconnectTimerRef.current) {
+        clearTimeout(wsReconnectTimerRef.current);
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      wsRef.current?.close();
     };
   }, [loadGenres, loadRoomMovies, navigate, roomCode, selectionSubmitted]);
 
