@@ -16,6 +16,7 @@ const Landing = () => {
   const [username, setUsername] = useState("");
   const [roomCode, setRoomCode] = useState("");
   const [mode, setMode] = useState(null);
+  const [includeAdult, setIncludeAdult] = useState(false);
 
   const handleCreateRoom = async () => {
     if (!username.trim()) {
@@ -109,6 +110,19 @@ const Landing = () => {
               className="w-full bg-white/5 border border-white/10 text-white placeholder:text-white/30 rounded-lg px-4 h-12 focus:ring-2 focus:ring-cinema-red focus:border-transparent outline-none"
               data-testid="username-input"
             />
+            <div className="flex items-center space-x-2 py-2">
+              <input
+                type="checkbox"
+                id="adult-content"
+                checked={includeAdult}
+                onChange={(e) => setIncludeAdult(e.target.checked)}
+                className="w-4 h-4 text-cinema-red bg-white/5 border-white/10 rounded focus:ring-cinema-red focus:ring-2"
+                data-testid="adult-content-checkbox"
+              />
+              <label htmlFor="adult-content" className="text-sm text-white/70">
+                Include 18+ Content
+              </label>
+            </div>
             <button
               onClick={handleCreateRoom}
               className="w-full bg-cinema-red text-white rounded-full py-4 font-bold uppercase tracking-widest hover:bg-red-700 transition-colors shadow-[0_0_15px_rgba(229,9,20,0.5)]"
