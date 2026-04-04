@@ -103,7 +103,6 @@ MOVIES = [
     {"id": "7", "title": "Fight Club", "year": 1999, "poster": "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg", "trailer": "qtRKdVHc-cE", "genre": "Drama", "language": "English"},
     {"id": "8", "title": "The Matrix", "year": 1999, "poster": "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg", "trailer": "vKQi3bBA1y8", "genre": "Sci-Fi", "language": "English"},
     {"id": "9", "title": "Interstellar", "year": 2014, "poster": "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg", "trailer": "zSWdZVtXT7E", "genre": "Sci-Fi", "language": "English"},
-    {"id": "10", "title": "Parasite", "year": 2019, "poster": "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg", "trailer": "5xH0HfJHsaY", "genre": "Thriller", "language": "Korean"},
     {"id": "11", "title": "3 Idiots", "year": 2009, "poster": "https://media.themoviedb.org/t/p/w500/gmSRHU1Wtiatj8KoyVt8rT9ockx.jpg", "trailer": "K0eDlFX9GMc", "genre": "Drama", "language": "Hindi"},
     {"id": "12", "title": "Dangal", "year": 2016, "poster": "https://media.themoviedb.org/t/p/w500/1CoKNi3XVyijPCvy0usDbSWEXAg.jpg", "trailer": "x_7YlGv9u1g", "genre": "Drama", "language": "Hindi"},
     {"id": "13", "title": "Carry on Jatta", "year": 2012, "poster": "https://media.themoviedb.org/t/p/w500/3KJ8UiNloo0Un2osnQOuyXfqNO2.jpg", "trailer": "R8fP-C8H4vE", "genre": "Comedy", "language": "Punjabi"},
@@ -127,17 +126,10 @@ MOVIES = [
     {"id": "31", "title": "Punjab 1984", "year": 2014, "poster": "https://media.themoviedb.org/t/p/w500/yJcg6qaDFok73SC353u4oEYpkvF.jpg", "trailer": "_Fu4ax6N45Y", "genre": "Drama", "language": "Punjabi"},
     {"id": "32", "title": "Jatt & Juliet", "year": 2012, "poster": "https://media.themoviedb.org/t/p/w500/sWheGtsztva6pVksRorg0mWC1M6.jpg", "trailer": "9mG0f9w9mYI", "genre": "Comedy", "language": "Punjabi", "imdb_url": "https://www.imdb.com/title/tt2196254/", "imdb_poster_url": "https://www.imdb.com/title/tt2196254/mediaviewer/rm4046382080/?ref_=tt_ov_i"},
     {"id": "33", "title": "Sufna", "year": 2020, "poster": "https://media.themoviedb.org/t/p/w500/ozso0mV2H6Yke5L6mgZnripGwez.jpg", "trailer": "W6S0h5f6g5M", "genre": "Romance", "language": "Punjabi"},
-    {"id": "34", "title": "Train to Busan", "year": 2016, "poster": "https://image.tmdb.org/t/p/w500/3H1WFCuxyNRP35oiL2qqwhAXxc0.jpg", "trailer": "pyWuHv2-Abk", "genre": "Thriller", "language": "Korean"},
-    {"id": "35", "title": "Oldboy", "year": 2003, "poster": "https://image.tmdb.org/t/p/w500/pWDtjs568ZfOTMbURQBYuT4Qxka.jpg", "trailer": "2HkjrJ6IK5E", "genre": "Thriller", "language": "Korean"},
-    {"id": "36", "title": "Memories of Murder", "year": 2003, "poster": "https://media.themoviedb.org/t/p/w500/dsEoTJKM1s5OVDkS2P2JdoTxo4K.jpg", "trailer": "0n_HQwQU8ls", "genre": "Crime", "language": "Korean"},
-    {"id": "37", "title": "Your Name", "year": 2016, "poster": "https://image.tmdb.org/t/p/w500/q719jXXEzOoYaps6babgKnONONX.jpg", "trailer": "xU47nhruN-Q", "genre": "Animation", "language": "Japanese"},
-    {"id": "38", "title": "Spirited Away", "year": 2001, "poster": "https://image.tmdb.org/t/p/w500/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg", "trailer": "ByXuk9QqQkk", "genre": "Animation", "language": "Japanese"},
-    {"id": "39", "title": "The Intouchables", "year": 2011, "poster": "https://image.tmdb.org/t/p/w500/323BP0itpxTsO0skTwdnVmf7YC9.jpg", "trailer": "34WIbmXkewU", "genre": "Comedy", "language": "French"},
-    {"id": "40", "title": "Pan's Labyrinth", "year": 2006, "poster": "https://media.themoviedb.org/t/p/w500/z7xXihu5wHuSMWymq5VAulPVuvg.jpg", "trailer": "EqYiSlkvRuw", "genre": "Fantasy", "language": "Spanish"},
 ]
 
 
-ADDITIONAL_MOVIES = [
+MOVIES.extend([
     {"title": "The Batman", "year": 2022, "genre": "Action", "language": "English"},
     {"title": "Batman Begins", "year": 2005, "genre": "Action", "language": "English"},
     {"title": "The Batman", "year": 1989, "genre": "Action", "language": "English"},
@@ -145,8 +137,6 @@ ADDITIONAL_MOVIES = [
     {"title": "Avengers: Endgame", "year": 2019, "genre": "Action", "language": "English"},
     {"title": "John Wick", "year": 2014, "genre": "Action", "language": "English"},
     {"title": "John Wick: Chapter 4", "year": 2023, "genre": "Action", "language": "English"},
-    {"title": "The Raid", "year": 2011, "genre": "Action", "language": "Indonesian"},
-    {"title": "The Raid 2", "year": 2014, "genre": "Action", "language": "Indonesian"},
     {"title": "Mission: Impossible - Fallout", "year": 2018, "genre": "Action", "language": "English"},
     {"title": "Top Gun: Maverick", "year": 2022, "genre": "Action", "language": "English"},
     {"title": "Casino Royale", "year": 2006, "genre": "Action", "language": "English"},
@@ -176,7 +166,6 @@ ADDITIONAL_MOVIES = [
     {"title": "No Country for Old Men", "year": 2007, "genre": "Crime", "language": "English"},
     {"title": "Heat", "year": 1995, "genre": "Crime", "language": "English"},
     {"title": "The Irishman", "year": 2019, "genre": "Crime", "language": "English"},
-    {"title": "Vikram Vedha", "year": 2017, "genre": "Crime", "language": "Tamil"},
     {"title": "Drishyam", "year": 2015, "genre": "Crime", "language": "Hindi"},
     {"title": "Talvar", "year": 2015, "genre": "Crime", "language": "Hindi"},
 
@@ -209,8 +198,6 @@ ADDITIONAL_MOVIES = [
     {"title": "Soul", "year": 2020, "genre": "Animation", "language": "English"},
     {"title": "Klaus", "year": 2019, "genre": "Animation", "language": "English"},
     {"title": "How to Train Your Dragon", "year": 2010, "genre": "Animation", "language": "English"},
-    {"title": "Howl's Moving Castle", "year": 2004, "genre": "Animation", "language": "Japanese"},
-    {"title": "Ponyo", "year": 2008, "genre": "Animation", "language": "Japanese"},
 
     {"title": "Blade Runner", "year": 1982, "genre": "Sci-Fi", "language": "English"},
     {"title": "The Martian", "year": 2015, "genre": "Sci-Fi", "language": "English"},
@@ -228,9 +215,6 @@ ADDITIONAL_MOVIES = [
     {"title": "Sicario", "year": 2015, "genre": "Thriller", "language": "English"},
     {"title": "Nightcrawler", "year": 2014, "genre": "Thriller", "language": "English"},
     {"title": "Black Swan", "year": 2010, "genre": "Thriller", "language": "English"},
-    {"title": "The Wailing", "year": 2016, "genre": "Thriller", "language": "Korean"},
-    {"title": "I Saw the Devil", "year": 2010, "genre": "Thriller", "language": "Korean"},
-    {"title": "Ratsasan", "year": 2018, "genre": "Thriller", "language": "Tamil"},
 
     {"title": "The Notebook", "year": 2004, "genre": "Romance", "language": "English"},
     {"title": "Before Sunrise", "year": 1995, "genre": "Romance", "language": "English"},
@@ -253,7 +237,6 @@ ADDITIONAL_MOVIES = [
     {"title": "Logan", "year": 2017, "genre": "Action", "language": "English"},
     {"title": "Skyfall", "year": 2012, "genre": "Action", "language": "English"},
     {"title": "The Equalizer", "year": 2014, "genre": "Action", "language": "English"},
-    {"title": "Rangasthalam", "year": 2018, "genre": "Action", "language": "Telugu"},
 
     {"title": "Booksmart", "year": 2019, "genre": "Comedy", "language": "English"},
     {"title": "The Nice Guys", "year": 2016, "genre": "Comedy", "language": "English"},
@@ -262,7 +245,6 @@ ADDITIONAL_MOVIES = [
 
     {"title": "Mystic River", "year": 2003, "genre": "Crime", "language": "English"},
     {"title": "The Town", "year": 2010, "genre": "Crime", "language": "English"},
-    {"title": "Kaithi", "year": 2019, "genre": "Crime", "language": "Tamil"},
     {"title": "Paatal Lok", "year": 2020, "genre": "Crime", "language": "Hindi"},
 
     {"title": "12 Years a Slave", "year": 2013, "genre": "Drama", "language": "English"},
@@ -276,7 +258,6 @@ ADDITIONAL_MOVIES = [
 
     {"title": "Moana", "year": 2016, "genre": "Animation", "language": "English"},
     {"title": "Frozen", "year": 2013, "genre": "Animation", "language": "English"},
-    {"title": "The Wind Rises", "year": 2013, "genre": "Animation", "language": "Japanese"},
 
     {"title": "Children of Men", "year": 2006, "genre": "Sci-Fi", "language": "English"},
     {"title": "Moon", "year": 2009, "genre": "Sci-Fi", "language": "English"},
@@ -284,46 +265,73 @@ ADDITIONAL_MOVIES = [
 
     {"title": "The Conjuring", "year": 2013, "genre": "Thriller", "language": "English"},
     {"title": "Shaitaan", "year": 2024, "genre": "Thriller", "language": "Hindi"},
-    {"title": "Maharaja", "year": 2024, "genre": "Thriller", "language": "Tamil"},
 
     {"title": "Veer-Zaara", "year": 2004, "genre": "Romance", "language": "Hindi"},
     {"title": "A Star Is Born", "year": 2018, "genre": "Romance", "language": "English"},
-    {"title": "96", "year": 2018, "genre": "Romance", "language": "Tamil"},
 
     {"title": "Fantastic Beasts and Where to Find Them", "year": 2016, "genre": "Fantasy", "language": "English"},
     {"title": "Miss Peregrine's Home for Peculiar Children", "year": 2016, "genre": "Fantasy", "language": "English"},
-]
+
+    {"title": "Django Unchained", "year": 2012, "genre": "Drama", "language": "English"},
+    {"title": "The Revenant", "year": 2015, "genre": "Adventure", "language": "English"},
+    {"title": "Collateral", "year": 2004, "genre": "Thriller", "language": "English"},
+    {"title": "The Imitation Game", "year": 2014, "genre": "Drama", "language": "English"},
+    {"title": "1917", "year": 2019, "genre": "Action", "language": "English"},
+    {"title": "Ford v Ferrari", "year": 2019, "genre": "Action", "language": "English"},
+    {"title": "The Gentlemen", "year": 2019, "genre": "Crime", "language": "English"},
+    {"title": "The Menu", "year": 2022, "genre": "Thriller", "language": "English"},
+    {"title": "The Northman", "year": 2022, "genre": "Adventure", "language": "English"},
+    {"title": "The Last Duel", "year": 2021, "genre": "Drama", "language": "English"},
+    {"title": "No Time to Die", "year": 2021, "genre": "Action", "language": "English"},
+    {"title": "Tenet", "year": 2020, "genre": "Sci-Fi", "language": "English"},
+    {"title": "Everything Everywhere All at Once", "year": 2022, "genre": "Sci-Fi", "language": "English"},
+    {"title": "The Banshees of Inisherin", "year": 2022, "genre": "Comedy", "language": "English"},
+    {"title": "The Fabelmans", "year": 2022, "genre": "Drama", "language": "English"},
+    {"title": "The Holdovers", "year": 2023, "genre": "Comedy", "language": "English"},
+    {"title": "Scream", "year": 2022, "genre": "Thriller", "language": "English"},
+    {"title": "Smile", "year": 2022, "genre": "Thriller", "language": "English"},
+    {"title": "Creed", "year": 2015, "genre": "Drama", "language": "English"},
+    {"title": "Creed III", "year": 2023, "genre": "Drama", "language": "English"},
+
+    {"title": "Dil Chahta Hai", "year": 2001, "genre": "Comedy", "language": "Hindi"},
+    {"title": "Kabir Singh", "year": 2019, "genre": "Drama", "language": "Hindi"},
+    {"title": "Raazi", "year": 2018, "genre": "Thriller", "language": "Hindi"},
+    {"title": "Article 15", "year": 2019, "genre": "Crime", "language": "Hindi"},
+    {"title": "Badhaai Ho", "year": 2018, "genre": "Comedy", "language": "Hindi"},
+    {"title": "Mimi", "year": 2021, "genre": "Drama", "language": "Hindi"},
+    {"title": "Monica, O My Darling", "year": 2022, "genre": "Crime", "language": "Hindi"},
+    {"title": "Tumbbad", "year": 2018, "genre": "Fantasy", "language": "Hindi"},
+    {"title": "Bhediya", "year": 2022, "genre": "Fantasy", "language": "Hindi"},
+    {"title": "Shershaah", "year": 2021, "genre": "Action", "language": "Hindi"},
+    {"title": "Pathaan", "year": 2023, "genre": "Action", "language": "Hindi"},
+    {"title": "Dunki", "year": 2023, "genre": "Comedy", "language": "Hindi"},
+    {"title": "Rocky Aur Rani Kii Prem Kahaani", "year": 2023, "genre": "Romance", "language": "Hindi"},
+    {"title": "Satyaprem Ki Katha", "year": 2023, "genre": "Romance", "language": "Hindi"},
+
+    {"title": "Chal Mera Putt", "year": 2019, "genre": "Comedy", "language": "Punjabi"},
+    {"title": "Shadaa", "year": 2019, "genre": "Comedy", "language": "Punjabi"},
+    {"title": "Bambukat", "year": 2016, "genre": "Romance", "language": "Punjabi"},
+    {"title": "Lahoriye", "year": 2017, "genre": "Romance", "language": "Punjabi"},
+    {"title": "Sufna", "year": 2020, "genre": "Romance", "language": "Punjabi"},
+    {"title": "Mastaney", "year": 2023, "genre": "Action", "language": "Punjabi"},
+    {"title": "Qismat 2", "year": 2021, "genre": "Drama", "language": "Punjabi"},
+    {"title": "Maa Da Ladla", "year": 2022, "genre": "Comedy", "language": "Punjabi"},
+    {"title": "Warning", "year": 2021, "genre": "Action", "language": "Punjabi"},
+    {"title": "Warning 2", "year": 2024, "genre": "Action", "language": "Punjabi"},
+])
 
 
-def expand_movies_with_real_catalog(movies: List[dict], additional_movies: List[dict]) -> List[dict]:
-    expanded = list(movies)
-    next_id = max(int(movie["id"]) for movie in movies) + 1
-    seen = {
-        (movie["title"].strip().lower(), movie["year"], movie["language"].strip().lower())
-        for movie in movies
-    }
+def ensure_movie_ids(movies: List[dict]) -> None:
+    numeric_ids = [int(movie["id"]) for movie in movies if str(movie.get("id", "")).isdigit()]
+    next_id = max(numeric_ids) + 1 if numeric_ids else 1
 
-    for movie in additional_movies:
-        key = (movie["title"].strip().lower(), movie["year"], movie["language"].strip().lower())
-        if key in seen:
-            continue
-
-        expanded.append({
-            "id": str(next_id),
-            "title": movie["title"],
-            "year": movie["year"],
-            "genre": movie["genre"],
-            "language": movie["language"],
-            "poster": movie.get("poster", ""),
-            "trailer": movie.get("trailer", ""),
-        })
-        seen.add(key)
-        next_id += 1
-
-    return expanded
+    for movie in movies:
+        if not str(movie.get("id", "")).strip():
+            movie["id"] = str(next_id)
+            next_id += 1
 
 
-MOVIES = expand_movies_with_real_catalog(MOVIES, ADDITIONAL_MOVIES)
+ensure_movie_ids(MOVIES)
 
 
 def build_poster_fallback(title: str) -> str:
@@ -349,42 +357,30 @@ def is_reachable_image(url: str) -> bool:
             return False
 
 
-def fetch_itunes_poster(title: str, year: int) -> str:
+def fetch_tmdb_poster(title: str, year: int) -> str:
+    tmdb_api_key = os.environ.get("TMDB_API_KEY")
+    if not tmdb_api_key:
+        return ""
+
     query = urlencode({
-        "term": title,
-        "media": "movie",
-        "entity": "movie",
-        "limit": 10,
+        "api_key": tmdb_api_key,
+        "query": title,
+        "primary_release_year": year,
+        "include_adult": "false"
     })
-    endpoint = f"https://itunes.apple.com/search?{query}"
+    endpoint = f"https://api.themoviedb.org/3/search/movie?{query}"
 
     try:
         req = Request(endpoint, headers={"User-Agent": "MovieMatch/1.0"})
         with urlopen(req, timeout=6) as response:
             payload = json.loads(response.read().decode("utf-8"))
+            results = payload.get("results", [])
+            if results and results[0].get("poster_path"):
+                return f"https://image.tmdb.org/t/p/w500{results[0]['poster_path']}"
     except Exception:
-        return ""
+        pass
 
-    candidates = payload.get("results", [])
-    best_url = ""
-    best_score = 10**9
-
-    for item in candidates:
-        artwork = item.get("artworkUrl100")
-        release_date = item.get("releaseDate", "")
-        if not artwork:
-            continue
-
-        release_year = 0
-        if len(release_date) >= 4 and release_date[:4].isdigit():
-            release_year = int(release_date[:4])
-
-        score = abs(release_year - year) if release_year else 100
-        if score < best_score:
-            best_score = score
-            best_url = artwork.replace("100x100bb", "1000x1000bb")
-
-    return best_url
+    return ""
 
 
 def enrich_posters(movies: List[dict]) -> None:
@@ -405,7 +401,7 @@ def enrich_posters(movies: List[dict]) -> None:
             movie["poster"] = cached
             continue
 
-        fetched = fetch_itunes_poster(title, year)
+        fetched = fetch_tmdb_poster(title, year)
         if fetched and is_reachable_image(fetched):
             movie["poster"] = fetched
             resolved[(title, year)] = fetched
@@ -427,6 +423,16 @@ for movie in MOVIES:
             "https://www.youtube.com/results?search_query="
             + quote_plus(f"{movie['title']} official trailer")
         )
+
+
+REAL_POSTER_MOVIES = [
+    movie for movie in MOVIES if movie.get("poster") and movie.get("poster") != movie.get("poster_fallback")
+]
+
+
+def get_active_movies() -> List[dict]:
+    # Prefer movies with real posters; fallback to full list if enrichment ever under-delivers.
+    return REAL_POSTER_MOVIES if REAL_POSTER_MOVIES else MOVIES
 
 
 def year_to_era(year: int) -> str:
@@ -546,7 +552,7 @@ async def start_swiping(request: StartSwipingRequest):
 
 @api_router.get("/genres")
 async def get_genres():
-    genres = sorted({movie["genre"] for movie in MOVIES})
+    genres = sorted({movie["genre"] for movie in get_active_movies()})
     return genres
 
 
@@ -562,8 +568,9 @@ async def get_eras():
 
 @api_router.get("/movies")
 async def get_movies(genres: Optional[str] = Query(default=None)):
+    active_movies = get_active_movies()
     if not genres:
-        return MOVIES
+        return active_movies
 
     genre_filter = {
         genre.strip().lower()
@@ -572,10 +579,10 @@ async def get_movies(genres: Optional[str] = Query(default=None)):
     }
 
     if not genre_filter:
-        return MOVIES
+        return active_movies
 
     return [
-        movie for movie in MOVIES if movie["genre"].strip().lower() in genre_filter
+        movie for movie in active_movies if movie["genre"].strip().lower() in genre_filter
     ]
 
 
@@ -599,7 +606,7 @@ async def submit_genre_preferences(request: GenrePreferencesRequest):
     if not cleaned_languages:
         raise HTTPException(status_code=400, detail="Select at least one language")
 
-    valid_genres = {movie["genre"] for movie in MOVIES}
+    valid_genres = {movie["genre"] for movie in get_active_movies()}
     valid_languages = set(SUPPORTED_LANGUAGES)
 
     invalid = [genre for genre in cleaned_genres if genre not in valid_genres]
@@ -669,13 +676,13 @@ async def get_room_movies(room_code: str):
     )
 
     if not merged_genres and not merged_languages:
-        movies = MOVIES
+        movies = get_active_movies()
     else:
         merged_lookup = {genre.lower() for genre in merged_genres}
         merged_language_lookup = {language.lower() for language in merged_languages}
         movies = [
             movie
-            for movie in MOVIES
+            for movie in get_active_movies()
             if (
                 (not merged_lookup or movie["genre"].strip().lower() in merged_lookup)
                 and (
