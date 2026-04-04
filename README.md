@@ -1,5 +1,7 @@
 # MovieMatch
 
+![MovieMatch Screenshot](./screenshot.png)
+
 MovieMatch is a room-based movie discovery app where friends join a shared session, pick preferences, and swipe through a merged movie list.
 
 ## What It Does
