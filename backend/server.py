@@ -26,6 +26,7 @@ db = client[os.environ['DB_NAME']]
 # Create the main app
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
+SUPPORTED_LANGUAGES = ["English", "Hindi", "Punjabi"]
 
 # WebSocket connection manager
 class ConnectionManager:
@@ -40,7 +41,8 @@ class ConnectionManager:
 
     def disconnect(self, websocket: WebSocket, room_code: str):
         if room_code in self.active_connections:
-            self.active_connections[room_code].remove(websocket)
+            if websocket in self.active_connections[room_code]:
+                self.active_connections[room_code].remove(websocket)
             if not self.active_connections[room_code]:
                 del self.active_connections[room_code]
 
@@ -393,7 +395,8 @@ def enrich_posters(movies: List[dict]) -> None:
         year = movie["year"]
         existing = (movie.get("poster") or "").strip()
 
-        if existing and is_reachable_image(existing):
+        # Trust curated URLs to avoid expensive startup-time network checks.
+        if existing:
             resolved[(title, year)] = existing
             continue
 
@@ -521,6 +524,10 @@ async def start_swiping(request: StartSwipingRequest):
         raise HTTPException(status_code=404, detail="Room not found")
 
     if room.get("status") == "swiping":
+        # If users navigated back to waiting room, re-broadcast start so everyone can re-enter swipe view.
+        await manager.send_to_room({
+            "type": "room_started"
+        }, room_code)
         return {"status": "success"}
 
     if len(room.get("members", [])) < 2:
@@ -545,8 +552,7 @@ async def get_genres():
 
 @api_router.get("/languages")
 async def get_languages():
-    languages = sorted({movie.get("language", "English") for movie in MOVIES})
-    return languages
+    return SUPPORTED_LANGUAGES
 
 
 @api_router.get("/eras")
@@ -587,18 +593,14 @@ async def submit_genre_preferences(request: GenrePreferencesRequest):
 
     cleaned_genres = sorted({genre.strip() for genre in request.genres if genre.strip()})
     cleaned_languages = sorted({language.strip() for language in request.languages if language.strip()})
-    cleaned_eras = sorted({era.strip() for era in request.eras if era.strip()})
 
     if not cleaned_genres:
         raise HTTPException(status_code=400, detail="Select at least one genre")
     if not cleaned_languages:
         raise HTTPException(status_code=400, detail="Select at least one language")
-    if not cleaned_eras:
-        raise HTTPException(status_code=400, detail="Select at least one era")
 
     valid_genres = {movie["genre"] for movie in MOVIES}
-    valid_languages = {movie.get("language", "English") for movie in MOVIES}
-    valid_eras = {"Classic", "2000s", "2010s+"}
+    valid_languages = set(SUPPORTED_LANGUAGES)
 
     invalid = [genre for genre in cleaned_genres if genre not in valid_genres]
     if invalid:
@@ -608,10 +610,6 @@ async def submit_genre_preferences(request: GenrePreferencesRequest):
     if invalid_languages:
         raise HTTPException(status_code=400, detail=f"Invalid languages: {', '.join(invalid_languages)}")
 
-    invalid_eras = [era for era in cleaned_eras if era not in valid_eras]
-    if invalid_eras:
-        raise HTTPException(status_code=400, detail=f"Invalid eras: {', '.join(invalid_eras)}")
-
     await db.rooms.update_one(
         {"code": room_code},
         {
@@ -619,7 +617,6 @@ async def submit_genre_preferences(request: GenrePreferencesRequest):
                 f"genre_preferences.{request.user_id}": {
                     "genres": cleaned_genres,
                     "languages": cleaned_languages,
-                    "eras": cleaned_eras,
                 }
             }
         },
@@ -670,20 +667,12 @@ async def get_room_movies(room_code: str):
             for language in member_preferences.get("languages", [])
         }
     )
-    merged_eras = sorted(
-        {
-            era
-            for member_preferences in preferences.values()
-            for era in member_preferences.get("eras", [])
-        }
-    )
 
-    if not merged_genres and not merged_languages and not merged_eras:
+    if not merged_genres and not merged_languages:
         movies = MOVIES
     else:
         merged_lookup = {genre.lower() for genre in merged_genres}
         merged_language_lookup = {language.lower() for language in merged_languages}
-        merged_era_lookup = {era.lower() for era in merged_eras}
         movies = [
             movie
             for movie in MOVIES
@@ -694,10 +683,6 @@ async def get_room_movies(room_code: str):
                     or movie.get("language", "English").strip().lower()
                     in merged_language_lookup
                 )
-                and (
-                    not merged_era_lookup
-                    or year_to_era(movie["year"]).strip().lower() in merged_era_lookup
-                )
             )
         ]
 
@@ -706,7 +691,6 @@ async def get_room_movies(room_code: str):
         "movies": movies,
         "merged_genres": merged_genres,
         "merged_languages": merged_languages,
-        "merged_eras": merged_eras,
         "selected_members": selected_members,
         "total_members": total_members,
         "waiting_for": waiting_for,

@@ -9,6 +9,7 @@ import { Toaster, toast } from "sonner";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
 const API = `${BACKEND_URL}/api`;
 const WS_URL = BACKEND_URL.replace('https://', 'wss://').replace('http://', 'ws://') + '/api';
+const SUPPORTED_LANGUAGES = ["English", "Hindi", "Punjabi"];
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -470,10 +471,8 @@ const Swipe = () => {
   const [movies, setMovies] = useState([]);
   const [availableGenres, setAvailableGenres] = useState([]);
   const [availableLanguages, setAvailableLanguages] = useState([]);
-  const [availableEras, setAvailableEras] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [selectedLanguages, setSelectedLanguages] = useState([]);
-  const [selectedEras, setSelectedEras] = useState([]);
   const [showGenrePicker, setShowGenrePicker] = useState(true);
   const [waitingForMembers, setWaitingForMembers] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState(0);
@@ -490,14 +489,15 @@ const Swipe = () => {
 
   const loadGenres = useCallback(async () => {
     try {
-      const [genreResponse, languageResponse, eraResponse] = await Promise.all([
+      const [genreResponse, languageResponse] = await Promise.all([
         axios.get(`${API}/genres`),
         axios.get(`${API}/languages`),
-        axios.get(`${API}/eras`),
       ]);
       setAvailableGenres(genreResponse.data);
-      setAvailableLanguages(languageResponse.data);
-      setAvailableEras(eraResponse.data);
+      // Enforce exactly three language options in frontend UI.
+      const serverLanguages = new Set(languageResponse.data || []);
+      const filteredLanguages = SUPPORTED_LANGUAGES.filter((lang) => serverLanguages.has(lang));
+      setAvailableLanguages(filteredLanguages.length ? filteredLanguages : SUPPORTED_LANGUAGES);
     } catch (error) {
       toast.error("Failed to load preference options");
     }
@@ -554,15 +554,6 @@ const Swipe = () => {
     });
   };
 
-  const toggleEra = (era) => {
-    setSelectedEras((prev) => {
-      if (prev.includes(era)) {
-        return prev.filter((item) => item !== era);
-      }
-      return [...prev, era];
-    });
-  };
-
   const startWithSelectedGenres = async () => {
     if (selectedGenres.length === 0) {
       toast.error("Select at least one category");
@@ -574,18 +565,12 @@ const Swipe = () => {
       return;
     }
 
-    if (selectedEras.length === 0) {
-      toast.error("Select at least one release era");
-      return;
-    }
-
     try {
       await axios.post(`${API}/rooms/preferences`, {
         room_code: roomCode,
         user_id: userId,
         genres: selectedGenres,
         languages: selectedLanguages,
-        eras: selectedEras,
       });
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to save categories");
@@ -733,7 +718,7 @@ const Swipe = () => {
           <div className="text-center space-y-3">
             <Film className="w-12 h-12 text-cinema-red mx-auto" style={{ filter: 'drop-shadow(0 0 20px rgba(229, 9, 20, 0.5))' }} />
             <h2 className="font-secondary text-3xl text-white tracking-wide uppercase" data-testid="genre-selection-title">Pick Your Categories</h2>
-            <p className="text-white/60 text-sm" data-testid="genre-selection-subtitle">Choose genre, language, and release era before swiping.</p>
+            <p className="text-white/60 text-sm" data-testid="genre-selection-subtitle">Choose genre and language before swiping.</p>
           </div>
 
           <div className="space-y-3">
@@ -776,29 +761,6 @@ const Swipe = () => {
                     data-testid={`language-option-${language.toLowerCase()}`}
                   >
                     {language}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <p className="text-white/70 text-xs uppercase tracking-wider" data-testid="question-era">3. Which release era?</p>
-            <div className="grid grid-cols-3 gap-3">
-              {availableEras.map((era) => {
-                const isSelected = selectedEras.includes(era);
-                return (
-                  <button
-                    key={era}
-                    onClick={() => toggleEra(era)}
-                    className={`rounded-lg px-3 py-2 text-sm font-bold uppercase tracking-wide transition-colors ${
-                      isSelected
-                        ? 'bg-cinema-red text-white shadow-[0_0_15px_rgba(229,9,20,0.5)]'
-                        : 'bg-white/5 text-white/80 border border-white/10 hover:bg-white/10'
-                    }`}
-                    data-testid={`era-option-${era.toLowerCase().replace(/\+/g, 'plus')}`}
-                  >
-                    {era}
                   </button>
                 );
               })}
