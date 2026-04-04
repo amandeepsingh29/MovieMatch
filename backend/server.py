@@ -574,6 +574,21 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str):
 
 app.include_router(api_router)
 
+
+@app.get("/")
+async def root():
+    return {
+        "service": "MovieMatch Backend",
+        "status": "ok",
+        "docs": "/docs",
+        "api_base": "/api",
+    }
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
