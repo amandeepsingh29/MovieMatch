@@ -941,22 +941,31 @@ const Swipe = () => {
 };
 
 function App() {
-  // Ping the backend every 10 minutes to prevent Render from spinning it down
+  // Ping the services every 40 seconds to prevent Render from spinning them down
   useEffect(() => {
-    const PING_INTERVAL = 10 * 60 * 1000; // 10 minutes in ms
+    const PING_INTERVAL = 40 * 1000; // 40 seconds in ms
     
-    const pingBackend = async () => {
+    const pingServices = async () => {
+      // Ping backend
       try {
         await axios.get(`${BACKEND_URL}/health`);
         console.log("Pinged backend to keep it alive");
       } catch (err) {
-        // Quietly fail if the ping didn't work
+        // Quietly fail
+      }
+
+      // Ping frontend
+      try {
+        await fetch(window.location.origin);
+        console.log("Pinged frontend to keep it alive");
+      } catch (err) {
+        // Quietly fail
       }
     };
 
     // Ping immediately on load, then set interval
-    pingBackend();
-    const interval = setInterval(pingBackend, PING_INTERVAL);
+    pingServices();
+    const interval = setInterval(pingServices, PING_INTERVAL);
 
     return () => clearInterval(interval);
   }, []);
